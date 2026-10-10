@@ -90,7 +90,7 @@ public sealed class HeadlessViewTests
         var settingsService = new SettingsService(store, store.Load(), NullLogger<SettingsService>.Instance);
         var ports = new ServerCreationTests.FixedPorts();
         var creation = new ServerCreationService(registry, runtime, operations, ports, time, NullLogger<ServerCreationService>.Instance);
-        var main = new MainWindowViewModel(
+        using var main = new MainWindowViewModel(
             Localizer.Instance, docker, servers,
             new SettingsPageViewModel(Localizer.Instance, settingsService),
             new AboutPageViewModel(Localizer.Instance, app, quiet, NullLogger<AboutPageViewModel>.Instance),

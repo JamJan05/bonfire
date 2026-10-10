@@ -288,8 +288,17 @@ public sealed partial class ServersPageViewModel : PageViewModel, IDisposable
         _ = RefreshAsync();
     }
 
+    private bool _disposed;
+
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        DetachFromLocalizer();
         _lifetime.Cancel();
         _lifetime.Dispose();
     }

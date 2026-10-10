@@ -27,9 +27,11 @@ public sealed partial class DockerStatusViewModel : ViewModelBase, IDockerStatus
         _engine = engine;
         _localizer = localizer;
         _logger = logger;
-        // Application-lifetime singleton: the subscription never needs removing.
-        localizer.LanguageChanged += (_, _) => RaiseTexts();
+        _languageChanged = (_, _) => RaiseTexts();
+        localizer.LanguageChanged += _languageChanged;
     }
+
+    private readonly EventHandler _languageChanged;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsConnected), nameof(IsProblem), nameof(HasWarnings))]
@@ -200,8 +202,17 @@ public sealed partial class DockerStatusViewModel : ViewModelBase, IDockerStatus
         }
     }
 
+    private bool _disposed;
+
     public void Dispose()
     {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        _localizer.LanguageChanged -= _languageChanged; // the localizer outlives this object
         _lifetime.Cancel();
         _lifetime.Dispose();
     }

@@ -17,9 +17,10 @@ public abstract class PageViewModel : ViewModelBase
 
     /// <summary>
     /// Short-lived pages (wizard, details) must call this when discarded, otherwise the singleton
-    /// localizer keeps them — and everything they hold — alive.
+    /// localizer keeps them — and everything they hold — alive. Long-lived pages are detached
+    /// when the main window's view model is disposed.
     /// </summary>
-    protected void DetachFromLocalizer() => Localizer.LanguageChanged -= _languageChanged;
+    public void DetachFromLocalizer() => Localizer.LanguageChanged -= _languageChanged;
 
     private readonly string _titleKey;
 

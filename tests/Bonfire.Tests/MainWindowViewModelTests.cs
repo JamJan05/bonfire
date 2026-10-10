@@ -80,9 +80,33 @@ public sealed class MainWindowViewModelTests : IDisposable
             d.Dispose();
         }
 
+        _main.Dispose();
         _servers.Dispose();
         _docker.Dispose();
         _temp.Dispose();
+    }
+
+    [Fact]
+    public void DisposedViewModelsNoLongerFollowLanguageChanges()
+    {
+        // Leftover subscriptions made windows of finished tests react to a later language change
+        // on another thread (seen in CI); in the app they would keep disposed objects alive.
+        var raised = new List<string?>();
+        _main.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+        _docker.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+        _servers.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
+        _main.Dispose();
+        _docker.Dispose();
+        _servers.Dispose();
+        try
+        {
+            Localizer.Instance.SetLanguage(AppLanguage.Polish);
+            Assert.Empty(raised);
+        }
+        finally
+        {
+            Localizer.Instance.SetLanguage(AppLanguage.English);
+        }
     }
 
     [Fact]

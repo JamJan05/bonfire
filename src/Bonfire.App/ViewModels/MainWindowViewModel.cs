@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bonfire.App.ViewModels;
 
-public sealed partial class MainWindowViewModel : ViewModelBase
+public sealed partial class MainWindowViewModel : ViewModelBase, IDisposable
 {
     private readonly Localizer _localizer;
 
@@ -46,7 +46,22 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         Pages = [servers, settings, about];
         _currentPage = servers;
         _selectedNavPage = servers;
-        localizer.LanguageChanged += (_, _) => OnPropertyChanged(nameof(WindowTitle));
+        _languageChanged = (_, _) => OnPropertyChanged(nameof(WindowTitle));
+        localizer.LanguageChanged += _languageChanged;
+    }
+
+    private readonly EventHandler _languageChanged;
+
+    /// <summary>Detaches this view model and its pages from the (longer-lived) localizer.</summary>
+    public void Dispose()
+    {
+        _localizer.LanguageChanged -= _languageChanged;
+        foreach (var page in Pages)
+        {
+            page.DetachFromLocalizer();
+        }
+
+        CurrentPage.DetachFromLocalizer();
     }
 
     public string WindowTitle => _localizer.Format("Window_Title", AppIdentity.DisplayName);
