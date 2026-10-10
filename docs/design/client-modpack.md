@@ -239,6 +239,30 @@ overlay VPN (Tailscale, ZeroTier, WireGuard) **on the host**, and the game port 
 the VPN address. No port forwarding, invisible to scanners, encrypted transport; friends install
 the VPN client, join the network and connect to the VPN address or name.
 
+Such a network is not an anonymising VPN: every member gets its own private address (e.g.
+`100.x.y.z` or `10.8.0.x`) next to its normal one, traffic between members is encrypted, and only
+members can reach those addresses. Membership is the guest list. Everything below is free of
+charge; the host plays the server, so the only costs are electricity and the home uplink
+(roughly 0.1–1 Mbit/s per player).
+
+| Option | Cost | Needs a public address at home? | Notes |
+|---|---|---|---|
+| Tailscale | free personal plan (100 devices, 3 users; friends join by device sharing or invitation) | no — its relays pass CGNAT | fewest steps; depends on a third-party coordination service |
+| ZeroTier | free up to 10 devices per network | no | similar |
+| WireGuard, self-hosted | free, no account anywhere | **yes** — one forwarded UDP port (IPv4) or IPv6; free dynamic DNS for a changing home address | the host's own PC is the VPN endpoint; the user generates a key pair and a config file (or QR code) per friend; removing a key removes the guest |
+| Headscale | free | yes | a self-hosted coordination server for Tailscale clients; more than a group of friends needs |
+
+The forwarded WireGuard port is not comparable to a forwarded game port: WireGuard answers only
+packets signed with a known key, so to a scanner the port looks dead, and it is a small, audited
+kernel component rather than a large Java application loading third-party code. Behind
+carrier-grade NAT (router address in `100.64.0.0/10`, no port forwarding possible) a self-hosted
+endpoint is not an option; Tailscale or a friend with a public address hosting the WireGuard
+endpoint are.
+
+Idea for much later, not in scope: an *Invite a friend* action generating a WireGuard peer
+config and QR code. Bonfire never runs as root, so it could only generate files; configuring the
+host interface stays with the user (NetworkManager and systemd-networkd both support WireGuard).
+
 A VPN **inside the container** is rejected: WireGuard and Tailscale need `NET_ADMIN` and
 `/dev/net/tun`, and the hardening profile grants no capabilities and no devices. A userspace
 networking Tailscale sidecar sharing the game container's network namespace would need neither,
@@ -255,7 +279,9 @@ Proposed change: a third `PortExposure`, **a specific host address**.
   message — never a silent fallback to `0.0.0.0`.
 - With the pack's `servers.dat` the entry can carry the VPN name or address, so friends who
   import the pack see the server in their list immediately.
-- The user guide gets a recipe "Playing with friends over the internet" built on this mode.
+- The user guide gets a recipe "Playing with friends over the internet" built on this mode:
+  one with Tailscale (fewest steps) and one with self-hosted WireGuard (no third party), each
+  ending with the pack's `servers.dat` carrying the VPN address.
 
 To verify during implementation (Docker specifics; not yet reviewed by the second reviewer):
 the address appearing after `dockerd` started, behaviour with and without `userland-proxy`,
