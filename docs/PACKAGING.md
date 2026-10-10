@@ -26,13 +26,18 @@ Git tree (`ALLOW_DIRTY=1` for test builds only). Output in `dist/`.
 
 ## Publishing
 
+`main` is protected: every change goes through a pull request with both CI jobs green (this also
+applies to the maintainer), history is linear, and release tags `v*` cannot be moved or deleted.
+
 ```sh
-TEST=1 packaging/release.sh       # build + test, Manifest commit, GitHub pre-release
-PRERELEASE=0 packaging/release.sh # after testing the pre-release: promote it to latest
+TEST=1 packaging/release.sh prepare   # build + test all artifacts, open a PR with the Gentoo Manifest
+git pull && packaging/release.sh finalize   # after merging it: verify, publish a GitHub pre-release
+packaging/release.sh promote          # after testing the pre-release: mark it as latest
 ```
 
-The release is made from a clean, pushed `main`. Published versions are never rebuilt; bump
-`<Version>` for every release. `install.sh` (repository root) installs the latest release.
+`finalize` rebuilds the payload from the merged `main` and refuses to publish unless it is
+identical to the one the Manifest describes. Published versions are never rebuilt; bump
+`<Version>` (and `git mv` the ebuild) for every release. `install.sh` installs the latest release.
 
 ## Reproducibility
 

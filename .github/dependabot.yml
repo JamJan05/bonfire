@@ -5,9 +5,17 @@ updates:
     schedule:
       interval: weekly
   # NuGet versions are locked on purpose; updates arrive as reviewed pull requests that must
-  # also update packages.lock.json (CI restores in locked mode) and pass CI.
+  # also update every packages.lock.json (CI restores in locked mode) and pass CI. Packages that
+  # must move together are grouped; major versions come as separate pull requests.
   - package-ecosystem: nuget
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      avalonia:
+        patterns: ["Avalonia*"]
+        update-types: ["minor", "patch"]
+      xunit:
+        patterns: ["xunit*"]
+        update-types: ["minor", "patch"]
