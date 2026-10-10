@@ -1,0 +1,39 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:views="using:Bonfire.App.Views"
+             x:Class="Bonfire.App.App"
+             RequestedThemeVariant="Dark">
+
+  <!-- Explicit, compile-time checked mapping of page view models to views. -->
+  <Application.DataTemplates>
+    <DataTemplate DataType="vm:ServersPageViewModel">
+      <views:ServersPageView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:NewServerViewModel">
+      <views:NewServerView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:ServerDetailsViewModel">
+      <views:ServerDetailsView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:SettingsPageViewModel">
+      <views:SettingsPageView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:AboutPageViewModel">
+      <views:AboutPageView />
+    </DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <FluentTheme>
+      <FluentTheme.Palettes>
+        <ColorPaletteResources x:Key="Dark"
+                               Accent="#A8502C"
+                               RegionColor="#161514"
+                               AltHigh="#161514"
+                               BaseHigh="#DDD5C8" />
+      </FluentTheme.Palettes>
+    </FluentTheme>
+    <StyleInclude Source="avares://bonfire/Styles/Theme.axaml" />
+  </Application.Styles>
+</Application>

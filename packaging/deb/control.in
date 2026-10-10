@@ -1,0 +1,19 @@
+Package: bonfire
+Version: @VERSION@-@RELEASE@
+Architecture: amd64
+Maintainer: JamJan05 <229660920+JamJan05@users.noreply.github.com>
+Installed-Size: @SIZE@
+Depends: libc6 (>= 2.27), libgcc-s1, libstdc++6, libssl3t64 | libssl3, libicu76 | libicu72, ca-certificates, libfontconfig1, libx11-6, libxext6, libxfixes3, libxi6, libxrandr2, libxcursor1, libice6, libsm6
+Recommends: libgl1, libegl1, libdbus-1-3, xdg-desktop-portal | libgtk-3-0
+Suggests: docker.io | docker-ce
+Section: games
+Priority: optional
+Homepage: https://github.com/JamJan05/bonfire
+Description: Run Minecraft servers safely in Docker
+ Bonfire creates and manages Minecraft Java servers (Vanilla, Fabric, Paper)
+ in hardened Docker containers: logs, console, players, settings, backups,
+ and mods or plugins from Modrinth with dependency checks, updates and undo.
+ .
+ Needs a rootful Docker daemon on this machine; the user must be allowed to
+ use its socket (membership in the "docker" group is root-equivalent).
+ This is a project-provided package, not an official Debian package.

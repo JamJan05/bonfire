@@ -1,0 +1,132 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:loc="using:Bonfire.App.Localization"
+             x:Class="Bonfire.App.Views.ServersPageView"
+             x:DataType="vm:ServersPageViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="40,32" Spacing="20" MaxWidth="1100" HorizontalAlignment="Left">
+      <DockPanel>
+        <Button DockPanel.Dock="Right"
+                Content="{Binding [Servers_NewServer], Source={x:Static loc:Localizer.Instance}}"
+                Command="{Binding NewServerCommand}" />
+        <TextBlock Classes="h1" Text="{Binding Title}" VerticalAlignment="Center" />
+      </DockPanel>
+
+      <!-- Docker connection -->
+      <Border Classes="card" Classes.problem="{Binding Docker.IsProblem}">
+        <StackPanel Spacing="12">
+          <DockPanel>
+            <Button DockPanel.Dock="Right"
+                    Content="{Binding [Docker_Retry], Source={x:Static loc:Localizer.Instance}}"
+                    Command="{Binding Docker.RefreshCommand}" />
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <Ellipse Width="11" Height="11" VerticalAlignment="Center"
+                       Classes="status"
+                       Classes.ok="{Binding Docker.IsConnected}"
+                       Classes.problem="{Binding Docker.IsProblem}"
+                       Classes.warning="{Binding Docker.HasWarnings}" />
+              <TextBlock Classes="h2" Text="{Binding Docker.Title}" />
+            </StackPanel>
+          </DockPanel>
+
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding Docker.IsChecking}" />
+
+          <TextBlock Text="{Binding Docker.Message}" TextWrapping="Wrap"
+                     IsVisible="{Binding Docker.Message, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+          <ItemsControl ItemsSource="{Binding Docker.Warnings}" IsVisible="{Binding Docker.HasWarnings}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <Border Classes="notice" Margin="0,0,0,8">
+                  <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <ItemsControl ItemsSource="{Binding Docker.Details}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:DetailRow">
+                <Grid ColumnDefinitions="160,*" Margin="0,3">
+                  <TextBlock Classes="muted" Text="{Binding Label}" />
+                  <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Expander Header="{Binding [Docker_TechnicalDetails], Source={x:Static loc:Localizer.Instance}}"
+                    IsVisible="{Binding Docker.TechnicalDetail, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <SelectableTextBlock Text="{Binding Docker.TechnicalDetail}" TextWrapping="Wrap"
+                                 FontFamily="JetBrains Mono, JetBrainsMono Nerd Font, monospace" FontSize="12" />
+          </Expander>
+
+          <TextBlock Classes="muted" FontSize="12" Text="{Binding Docker.LastCheckedText}" />
+        </StackPanel>
+      </Border>
+
+      <!-- Server list -->
+      <StackPanel Spacing="0">
+        <TextBlock Classes="muted" FontSize="12" Margin="2,0,0,8" IsVisible="{Binding IsStale}"
+                   Text="{Binding [Servers_Stale], Source={x:Static loc:Localizer.Instance}}" />
+        <TextBlock Classes="muted" IsVisible="{Binding !HasServers}"
+                   Text="{Binding [Servers_Empty], Source={x:Static loc:Localizer.Instance}}" />
+        <ItemsControl ItemsSource="{Binding Servers}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ServerItemViewModel">
+              <Border Classes="server">
+                <StackPanel Spacing="8">
+                  <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
+                      <Button Content="{Binding [Server_Action_Details], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding ShowDetailsCommand}" IsVisible="{Binding Snapshot.Record, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                      <Button Content="{Binding [Server_Action_Start], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding StartCommand}" IsVisible="{Binding ShowStart}" />
+                      <Button Content="{Binding [Server_Action_Stop], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding StopCommand}" />
+                      <Button Content="{Binding [Server_Action_Restart], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding RestartCommand}" />
+                      <Button Content="{Binding [Server_Action_Repair], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding RepairCommand}" IsVisible="{Binding ShowRepair}" />
+                      <Button Content="{Binding [Server_Action_RemoveContainer], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding RemoveContainerCommand}" IsVisible="{Binding ShowRemoveContainer}" />
+                    </StackPanel>
+                    <StackPanel Spacing="2">
+                      <StackPanel Orientation="Horizontal" Spacing="10">
+                        <Ellipse Width="10" Height="10" VerticalAlignment="Center" Classes="status"
+                                 Classes.ok="{Binding IsOk}" Classes.warning="{Binding IsWarning}" Classes.problem="{Binding IsProblem}" />
+                        <TextBlock Classes="h2" Text="{Binding Name}" />
+                        <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding StatusText}" />
+                        <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="12" Text="{Binding StateDetail}" />
+                      </StackPanel>
+                      <TextBlock Classes="muted" FontSize="13">
+                        <Run Text="{Binding Details}" /><Run Text="  ·  " /><Run Text="{Binding Address}" />
+                      </TextBlock>
+                    </StackPanel>
+                  </DockPanel>
+
+                  <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+
+                  <Border Classes="notice" IsVisible="{Binding IsStopping}">
+                    <DockPanel>
+                      <Button DockPanel.Dock="Right" Classes="danger"
+                              Content="{Binding [Server_Action_ForceStop], Source={x:Static loc:Localizer.Instance}}"
+                              Command="{Binding ForceStopCommand}" IsVisible="{Binding ShowForceStop}" />
+                      <TextBlock Text="{Binding StoppingText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    </DockPanel>
+                  </Border>
+
+                  <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap" Foreground="{StaticResource BfWarningBrush}"
+                             IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                  <TextBlock Classes="muted" FontSize="11" Text="{Binding IdText}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

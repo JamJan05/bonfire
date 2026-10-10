@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>10.0</AnalysisLevel>
+    <Deterministic>true</Deterministic>
+    <!-- No Git commit in the binaries: a release's Manifest-only commit must not change them. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+
+    <!-- Reproducible restore: lock files are committed, CI/release uses locked mode. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- Released self-contained for Linux: the lock files cover this runtime too, so a locked
+         restore can feed a linux-x64 publish without restoring again. -->
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+    <!-- Audit direct and transitive packages; with TreatWarningsAsErrors a finding
+         (or an unreachable audit source, NU1900) fails the build. -->
+    <NuGetAudit>true</NuGetAudit>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <NuGetAuditLevel>low</NuGetAuditLevel>
+
+    <Version>0.1.0</Version>
+    <Product>Bonfire</Product>
+    <Company>Bonfire</Company>
+    <NeutralLanguage>en</NeutralLanguage>
+    <!-- Only the satellite resources the app actually ships. -->
+    <SatelliteResourceLanguages>en;pl</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <!-- Linux-only application: lets the platform analyzer accept Unix-only APIs. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.Versioning.SupportedOSPlatformAttribute">
+      <_Parameter1>linux</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+</Project>

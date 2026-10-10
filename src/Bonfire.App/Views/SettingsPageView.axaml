@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:loc="using:Bonfire.App.Localization"
+             x:Class="Bonfire.App.Views.SettingsPageView"
+             x:DataType="vm:SettingsPageViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="40,32" Spacing="20" MaxWidth="1100" HorizontalAlignment="Left">
+      <TextBlock Classes="h1" Text="{Binding Title}" />
+
+      <Border Classes="notice" IsVisible="{Binding FileWarning, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <StackPanel Spacing="10">
+          <TextBlock Text="{Binding FileWarning}" TextWrapping="Wrap" />
+          <Button Content="{Binding [Settings_ReplaceFile], Source={x:Static loc:Localizer.Instance}}"
+                  Command="{Binding ReplaceFileCommand}"
+                  IsVisible="{Binding CanReplaceFile}" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [Settings_Language], Source={x:Static loc:Localizer.Instance}}" />
+          <ComboBox ItemsSource="{Binding Languages}"
+                    SelectedItem="{Binding SelectedLanguage}"
+                    MinWidth="220">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:LanguageOption">
+                <TextBlock Text="{Binding NativeName}" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <TextBlock Classes="muted" Text="{Binding [Settings_LanguageHint], Source={x:Static loc:Localizer.Instance}}" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [Settings_BackupsToKeep], Source={x:Static loc:Localizer.Instance}}" />
+          <NumericUpDown Value="{Binding BackupsToKeep}" Minimum="1" Maximum="100" FormatString="0" Width="160" HorizontalAlignment="Left" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Settings_BackupsToKeepHint], Source={x:Static loc:Localizer.Instance}}" />
+        </StackPanel>
+      </Border>
+
+      <TextBlock Text="{Binding StatusMessage}" Classes="muted" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

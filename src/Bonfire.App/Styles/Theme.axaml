@@ -1,0 +1,117 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- Dark graphite palette with muted ember accents (inspired by Dark Souls 3). -->
+  <Styles.Resources>
+    <Color x:Key="BfBackgroundColor">#161514</Color>
+    <Color x:Key="BfSidebarColor">#1B1A18</Color>
+    <Color x:Key="BfSurfaceColor">#211F1D</Color>
+    <Color x:Key="BfSurfaceRaisedColor">#2A2724</Color>
+    <Color x:Key="BfBorderColor">#3A3530</Color>
+    <Color x:Key="BfTextColor">#DDD5C8</Color>
+    <Color x:Key="BfTextMutedColor">#9C9288</Color>
+    <Color x:Key="BfEmberColor">#A8502C</Color>
+    <Color x:Key="BfEmberSoftColor">#3A2419</Color>
+    <Color x:Key="BfBloodColor">#7E2E28</Color>
+    <Color x:Key="BfWarningColor">#B07A35</Color>
+
+    <SolidColorBrush x:Key="BfBackgroundBrush" Color="{StaticResource BfBackgroundColor}" />
+    <SolidColorBrush x:Key="BfSidebarBrush" Color="{StaticResource BfSidebarColor}" />
+    <SolidColorBrush x:Key="BfSurfaceBrush" Color="{StaticResource BfSurfaceColor}" />
+    <SolidColorBrush x:Key="BfSurfaceRaisedBrush" Color="{StaticResource BfSurfaceRaisedColor}" />
+    <SolidColorBrush x:Key="BfBorderBrush" Color="{StaticResource BfBorderColor}" />
+    <SolidColorBrush x:Key="BfTextBrush" Color="{StaticResource BfTextColor}" />
+    <SolidColorBrush x:Key="BfTextMutedBrush" Color="{StaticResource BfTextMutedColor}" />
+    <SolidColorBrush x:Key="BfEmberBrush" Color="{StaticResource BfEmberColor}" />
+    <SolidColorBrush x:Key="BfEmberSoftBrush" Color="{StaticResource BfEmberSoftColor}" />
+    <SolidColorBrush x:Key="BfBloodBrush" Color="{StaticResource BfBloodColor}" />
+    <SolidColorBrush x:Key="BfWarningBrush" Color="{StaticResource BfWarningColor}" />
+
+    <CornerRadius x:Key="ControlCornerRadius">10</CornerRadius>
+    <CornerRadius x:Key="OverlayCornerRadius">10</CornerRadius>
+    <CornerRadius x:Key="BfCardCornerRadius">10</CornerRadius>
+  </Styles.Resources>
+
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{StaticResource BfBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource BfTextBrush}" />
+    <Setter Property="FontFamily" Value="fonts:Inter#Inter" />
+  </Style>
+
+  <Style Selector="TextBlock.h1">
+    <Setter Property="FontSize" Value="26" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.h2">
+    <Setter Property="FontSize" Value="17" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{StaticResource BfTextMutedBrush}" />
+  </Style>
+
+  <Style Selector="Border.card">
+    <Setter Property="Background" Value="{StaticResource BfSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource BfBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource BfCardCornerRadius}" />
+    <Setter Property="Padding" Value="20" />
+  </Style>
+
+  <!-- Subtle notice for features not available yet. -->
+  <Style Selector="Border.notice">
+    <Setter Property="Background" Value="{StaticResource BfEmberSoftBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource BfEmberBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource BfCardCornerRadius}" />
+    <Setter Property="Padding" Value="16,12" />
+  </Style>
+
+  <!-- Status dot: muted grey while unknown/checking, green-grey when ok, ember on problems. -->
+  <Style Selector="Ellipse.status">
+    <Setter Property="Fill" Value="{StaticResource BfTextMutedBrush}" />
+  </Style>
+  <Style Selector="Ellipse.status.ok">
+    <Setter Property="Fill" Value="#6E8B5E" />
+  </Style>
+  <Style Selector="Ellipse.status.ok.warning">
+    <Setter Property="Fill" Value="{StaticResource BfWarningBrush}" />
+  </Style>
+  <Style Selector="Ellipse.status.problem">
+    <Setter Property="Fill" Value="{StaticResource BfBloodBrush}" />
+  </Style>
+
+  <Style Selector="Border.problem">
+    <Setter Property="Background" Value="#2B1A18" />
+    <Setter Property="BorderBrush" Value="{StaticResource BfBloodBrush}" />
+  </Style>
+
+  <Style Selector="Button.danger">
+    <Setter Property="Background" Value="{StaticResource BfBloodBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource BfTextBrush}" />
+  </Style>
+
+  <Style Selector="Border.server">
+    <Setter Property="Background" Value="{StaticResource BfSurfaceBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource BfBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource BfCardCornerRadius}" />
+    <Setter Property="Padding" Value="18,14" />
+    <Setter Property="Margin" Value="0,0,0,12" />
+  </Style>
+
+  <Style Selector="ListBox.nav">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem">
+    <Setter Property="Padding" Value="14,10" />
+    <Setter Property="Margin" Value="0,2" />
+    <Setter Property="CornerRadius" Value="{StaticResource BfCardCornerRadius}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource BfEmberSoftBrush}" />
+  </Style>
+  <Style Selector="ListBox.nav ListBoxItem:selected">
+    <Setter Property="Foreground" Value="{StaticResource BfTextBrush}" />
+  </Style>
+</Styles>

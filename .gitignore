@@ -1,0 +1,11 @@
+bin/
+obj/
+artifacts/
+*.user
+*.swp
+.vs/
+.idea/
+.vscode/
+TestResults/
+*.AppImage
+dist/

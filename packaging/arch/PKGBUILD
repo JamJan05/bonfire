@@ -1,0 +1,31 @@
+# Project-provided package: repackages the self-contained release tarball.
+# Put bonfire-<version>-linux-x64.tar.gz from the release next to this file, then run makepkg
+# as a regular user.
+pkgname=bonfire-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Run Minecraft servers safely in Docker"
+arch=('x86_64')
+url="https://github.com/JamJan05/bonfire"
+license=('GPL-3.0-or-later' 'MIT' 'Apache-2.0' 'OFL-1.1')
+provides=('bonfire')
+conflicts=('bonfire')
+depends=('glibc' 'gcc-libs' 'icu' 'openssl' 'ca-certificates' 'fontconfig'
+         'libx11' 'libxext' 'libxfixes' 'libxi' 'libxrandr' 'libxcursor' 'libice' 'libsm')
+optdepends=('docker: runs the Minecraft servers (rootful daemon)'
+            'libglvnd: GPU-accelerated rendering'
+            'xdg-desktop-portal: file chooser for local mods'
+            'gtk3: file chooser fallback')
+options=('!strip' '!debug')
+source=("bonfire-${pkgver}-linux-x64.tar.gz")
+sha256sums=('@SHA256@')
+
+package() {
+    cd "bonfire-${pkgver}"
+    install -dm755 "${pkgdir}/usr/lib" "${pkgdir}/usr/bin"
+    cp -a lib "${pkgdir}/usr/lib/bonfire"
+    ln -s ../lib/bonfire/bonfire "${pkgdir}/usr/bin/bonfire"
+    cp -a share "${pkgdir}/usr/share"
+    install -Dm644 share/doc/bonfire/LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    install -Dm644 share/doc/bonfire/THIRD-PARTY-NOTICES.txt "${pkgdir}/usr/share/licenses/${pkgname}/THIRD-PARTY-NOTICES.txt"
+}

@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:loc="using:Bonfire.App.Localization"
+             x:Class="Bonfire.App.Views.AboutPageView"
+             x:DataType="vm:AboutPageViewModel">
+  <ScrollViewer>
+    <StackPanel Margin="40,32" Spacing="20" MaxWidth="1100" HorizontalAlignment="Left">
+      <TextBlock Classes="h1" Text="{Binding Title}" />
+
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="h2" Text="{Binding AppName}" />
+          <TextBlock Classes="muted" Text="{Binding VersionText}" />
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto"
+              ColumnSpacing="24" RowSpacing="10">
+          <TextBlock Grid.ColumnSpan="2" Classes="h2" Text="{Binding [About_Directories], Source={x:Static loc:Localizer.Instance}}" />
+          <TextBlock Grid.Row="1" Classes="muted" Text="{Binding [About_Config], Source={x:Static loc:Localizer.Instance}}" />
+          <SelectableTextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ConfigDir}" TextWrapping="Wrap" />
+          <TextBlock Grid.Row="2" Classes="muted" Text="{Binding [About_Data], Source={x:Static loc:Localizer.Instance}}" />
+          <SelectableTextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DataDir}" TextWrapping="Wrap" />
+          <TextBlock Grid.Row="3" Classes="muted" Text="{Binding [About_Logs], Source={x:Static loc:Localizer.Instance}}" />
+          <SelectableTextBlock Grid.Row="3" Grid.Column="1" Text="{Binding LogDir}" TextWrapping="Wrap" />
+        </Grid>
+      </Border>
+
+      <StackPanel Orientation="Horizontal" Spacing="16">
+        <Button Content="{Binding [About_OpenLogDir], Source={x:Static loc:Localizer.Instance}}" Command="{Binding OpenLogDirCommand}" />
+        <TextBlock Text="{Binding StatusMessage}" Foreground="{StaticResource BfWarningBrush}"
+                   VerticalAlignment="Center" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

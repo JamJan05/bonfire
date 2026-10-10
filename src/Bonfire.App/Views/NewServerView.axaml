@@ -1,0 +1,204 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:loc="using:Bonfire.App.Localization"
+             xmlns:meta="using:Bonfire.Core.Metadata"
+             xmlns:sys="using:System"
+             x:Class="Bonfire.App.Views.NewServerView"
+             x:DataType="vm:NewServerViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.label">
+      <Setter Property="Foreground" Value="{StaticResource BfTextMutedBrush}" />
+      <Setter Property="Margin" Value="0,6,0,2" />
+    </Style>
+    <Style Selector="TextBlock.warn">
+      <Setter Property="Foreground" Value="{StaticResource BfWarningBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="*,340">
+    <!-- Form -->
+    <ScrollViewer Grid.Column="0">
+      <StackPanel Margin="40,32,24,32" Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+        <DockPanel>
+          <Button DockPanel.Dock="Left" Margin="0,0,16,0"
+                  Content="{Binding [Common_Back], Source={x:Static loc:Localizer.Instance}}" Command="{Binding BackCommand}" />
+          <TextBlock Classes="h1" Text="{Binding Title}" VerticalAlignment="Center" />
+        </DockPanel>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [Wizard_Basics], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBlock Classes="label" Text="{Binding [Wizard_Name], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBox Text="{Binding DisplayName}" MaxLength="64" />
+            <Grid ColumnDefinitions="*,16,*">
+              <StackPanel>
+                <TextBlock Classes="label" Text="{Binding [Wizard_Type], Source={x:Static loc:Localizer.Instance}}" />
+                <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" HorizontalAlignment="Stretch" />
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Classes="label" Text="{Binding [Wizard_Version], Source={x:Static loc:Localizer.Instance}}" />
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Margin="8,0,0,0" Content="⟳"
+                          ToolTip.Tip="{Binding [Wizard_Refresh], Source={x:Static loc:Localizer.Instance}}"
+                          Command="{Binding RefreshVersionsCommand}" />
+                  <ComboBox ItemsSource="{Binding Versions}" SelectedItem="{Binding SelectedVersion}" HorizontalAlignment="Stretch">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="meta:GameVersion">
+                        <TextBlock Text="{Binding Id}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </DockPanel>
+              </StackPanel>
+            </Grid>
+            <TextBlock Classes="muted" Margin="0,8,0,0" IsVisible="{Binding IsResolving}"
+                       Text="{Binding [Wizard_Resolving], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBlock Margin="0,8,0,0" Text="{Binding ResolvedText}" TextWrapping="Wrap" />
+            <TextBlock Classes="warn" Text="{Binding ResolutionError}" />
+            <TextBlock Classes="warn" IsVisible="{Binding ShowPaperUnsupported}"
+                       Text="{Binding [Wizard_PaperUnsupported], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBlock Classes="muted" IsVisible="{Binding ShowFabricNote}"
+                       Text="{Binding [Wizard_FabricNoApi], Source={x:Static loc:Localizer.Instance}}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [Wizard_Resources], Source={x:Static loc:Localizer.Instance}}" />
+            <Grid ColumnDefinitions="*,16,*,16,*">
+              <StackPanel>
+                <TextBlock Classes="label" Text="{Binding [Wizard_HeapMin], Source={x:Static loc:Localizer.Instance}}" />
+                <NumericUpDown Value="{Binding HeapMinMb}" Minimum="512" Maximum="65536" Increment="256" FormatString="0" />
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Classes="label" Text="{Binding [Wizard_HeapMax], Source={x:Static loc:Localizer.Instance}}" />
+                <NumericUpDown Value="{Binding HeapMaxMb}" Minimum="512" Maximum="65536" Increment="256" FormatString="0" />
+              </StackPanel>
+              <StackPanel Grid.Column="4">
+                <TextBlock Classes="label" Text="{Binding [Wizard_Cpu], Source={x:Static loc:Localizer.Instance}}" />
+                <NumericUpDown Value="{Binding CpuLimit}" Minimum="0.5" Maximum="{Binding MaxCpu}" Increment="0.5" FormatString="0.0" />
+              </StackPanel>
+            </Grid>
+            <TextBlock Classes="muted" Margin="0,8,0,0" Text="{Binding ContainerMemoryText}" TextWrapping="Wrap" />
+            <TextBlock Classes="warn" Text="{Binding MemoryWarning}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [Wizard_Network], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBlock Classes="label" Text="{Binding [Wizard_Port], Source={x:Static loc:Localizer.Instance}}" />
+            <StackPanel Orientation="Horizontal" Spacing="12">
+              <NumericUpDown Value="{Binding Port}" Minimum="1024" Maximum="65535" FormatString="0" Width="160" />
+              <TextBlock VerticalAlignment="Center" Text="{Binding PortStatus}"
+                         Classes.warn="{Binding PortProblem}" Classes.muted="{Binding !PortProblem}" />
+            </StackPanel>
+            <RadioButton Margin="0,8,0,0" IsChecked="{Binding !ExposeOnAllInterfaces}"
+                         Content="{Binding [Wizard_ExposureLocal], Source={x:Static loc:Localizer.Instance}}" />
+            <RadioButton IsChecked="{Binding ExposeOnAllInterfaces}"
+                         Content="{Binding [Wizard_ExposureAll], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBlock Classes="warn" IsVisible="{Binding ExposeOnAllInterfaces}"
+                       Text="{Binding [Wizard_ExposureAllWarning], Source={x:Static loc:Localizer.Instance}}" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="h2" Text="{Binding [Wizard_Game], Source={x:Static loc:Localizer.Instance}}" />
+            <CheckBox IsChecked="{Binding OnlineMode}"
+                      Content="{Binding [Wizard_OnlineMode], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBlock Classes="warn" IsVisible="{Binding !OnlineMode}"
+                       Text="{Binding [Wizard_OnlineModeWarning], Source={x:Static loc:Localizer.Instance}}" />
+            <Grid ColumnDefinitions="*,16,*">
+              <StackPanel>
+                <TextBlock Classes="label" Text="{Binding [Wizard_Difficulty], Source={x:Static loc:Localizer.Instance}}" />
+                <ComboBox ItemsSource="{Binding Difficulties}" SelectedItem="{Binding SelectedDifficulty}" HorizontalAlignment="Stretch">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IChoice">
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+              <StackPanel Grid.Column="2">
+                <TextBlock Classes="label" Text="{Binding [Wizard_MaxPlayers], Source={x:Static loc:Localizer.Instance}}" />
+                <NumericUpDown Value="{Binding MaxPlayers}" Minimum="1" Maximum="1000" FormatString="0" />
+              </StackPanel>
+            </Grid>
+            <CheckBox Margin="0,8,0,0" IsChecked="{Binding WhitelistEnabled}"
+                      Content="{Binding [Wizard_Whitelist], Source={x:Static loc:Localizer.Instance}}" />
+            <StackPanel IsVisible="{Binding WhitelistEnabled}">
+              <TextBlock Classes="label" Text="{Binding [Wizard_WhitelistEntries], Source={x:Static loc:Localizer.Instance}}" />
+              <TextBox Text="{Binding WhitelistText}" AcceptsReturn="True" MinHeight="70" />
+              <TextBlock Classes="warn" Text="{Binding WhitelistEmptyNote}" />
+            </StackPanel>
+            <TextBlock Classes="label" Text="{Binding [Wizard_Seed], Source={x:Static loc:Localizer.Instance}}" />
+            <TextBox Text="{Binding Seed}" MaxLength="64" />
+          </StackPanel>
+        </Border>
+
+        <Expander Header="{Binding [Wizard_Advanced], Source={x:Static loc:Localizer.Instance}}" HorizontalAlignment="Stretch">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="label" Text="{Binding [Wizard_RestartPolicy], Source={x:Static loc:Localizer.Instance}}" />
+            <ComboBox ItemsSource="{Binding RestartPolicies}" SelectedItem="{Binding SelectedRestartPolicy}" HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:IChoice">
+                  <TextBlock Text="{Binding Label}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <CheckBox Margin="0,8,0,0" IsChecked="{Binding StartAfterCreate}"
+                      Content="{Binding [Wizard_StartAfter], Source={x:Static loc:Localizer.Instance}}" />
+          </StackPanel>
+        </Expander>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Summary and create: always visible -->
+    <Border Grid.Column="1" Background="{StaticResource BfSidebarBrush}"
+            BorderBrush="{StaticResource BfBorderBrush}" BorderThickness="1,0,0,0" Padding="20,32">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Spacing="10">
+          <TextBlock Classes="h2" Text="{Binding [Wizard_Eula], Source={x:Static loc:Localizer.Instance}}" />
+          <CheckBox IsChecked="{Binding EulaAccepted}">
+            <TextBlock Text="{Binding [Wizard_EulaAccept], Source={x:Static loc:Localizer.Instance}}" TextWrapping="Wrap" />
+          </CheckBox>
+          <Button Content="{Binding [Wizard_EulaOpen], Source={x:Static loc:Localizer.Instance}}" Command="{Binding OpenEulaCommand}" />
+          <ProgressBar IsVisible="{Binding IsCreating}" IsIndeterminate="{Binding PullPercent, Converter={x:Static ObjectConverters.IsNull}}"
+                       Value="{Binding PullPercent}" Minimum="0" Maximum="100" />
+          <TextBlock Text="{Binding PhaseText}" Classes="muted" />
+          <TextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" Foreground="{StaticResource BfWarningBrush}" />
+          <Button Content="{Binding [Wizard_GoToServers], Source={x:Static loc:Localizer.Instance}}"
+                  Command="{Binding GoToServersCommand}" IsVisible="{Binding ShowGoToServers}" />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Button Classes="accent" Content="{Binding [Wizard_Create], Source={x:Static loc:Localizer.Instance}}"
+                    Command="{Binding CreateCommand}" />
+            <Button Content="{Binding [Common_Cancel], Source={x:Static loc:Localizer.Instance}}"
+                    Command="{Binding CancelCreationCommand}" IsVisible="{Binding IsCreating}" />
+          </StackPanel>
+        </StackPanel>
+        <ScrollViewer>
+          <StackPanel Spacing="8">
+            <TextBlock Classes="h2" Text="{Binding [Wizard_Summary], Source={x:Static loc:Localizer.Instance}}" />
+            <ItemsControl ItemsSource="{Binding Summary}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="sys:String">
+                  <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,2" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Errors}" Margin="0,8,0,0">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="sys:String">
+                  <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,2" Foreground="{StaticResource BfWarningBrush}" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+      </DockPanel>
+    </Border>
+  </Grid>
+</UserControl>

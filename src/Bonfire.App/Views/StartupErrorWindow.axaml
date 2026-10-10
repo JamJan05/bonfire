@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Bonfire.App.Localization"
+        x:Class="Bonfire.App.Views.StartupErrorWindow"
+        Title="Bonfire"
+        Width="560" SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen">
+  <StackPanel Margin="28" Spacing="16">
+    <TextBlock x:Name="TitleText" Classes="h2" Foreground="{StaticResource BfEmberBrush}" />
+    <SelectableTextBlock x:Name="MessageText" TextWrapping="Wrap" />
+    <SelectableTextBlock x:Name="DetailText" TextWrapping="Wrap" Classes="muted" FontSize="12" />
+    <Button Content="{Binding [Common_Close], Source={x:Static loc:Localizer.Instance}}" HorizontalAlignment="Right" Click="OnCloseClick" />
+  </StackPanel>
+</Window>

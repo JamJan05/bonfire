@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.jamjan05.Bonfire</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Bonfire</name>
+  <summary>Run Minecraft servers safely in Docker</summary>
+  <summary xml:lang="pl">Bezpieczne serwery Minecraft w Dockerze</summary>
+  <description>
+    <p>
+      Bonfire creates and manages Minecraft Java servers (Vanilla, Fabric, Paper) in hardened
+      Docker containers: logs, console, players, settings, backups, and mods or plugins from Modrinth
+      with dependency checks, updates and undo.
+    </p>
+    <p xml:lang="pl">
+      Bonfire tworzy serwery Minecraft Java (Vanilla, Fabric, Paper) w utwardzonych kontenerach
+      Dockera i nimi zarządza: logi, konsola, gracze, ustawienia, kopie zapasowe oraz mody i pluginy z
+      Modrinth ze sprawdzaniem zależności, aktualizacjami i cofaniem zmian.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.jamjan05.Bonfire.desktop</launchable>
+  <provides>
+    <binary>bonfire</binary>
+  </provides>
+  <categories>
+    <category>Game</category>
+  </categories>
+  <url type="homepage">https://github.com/JamJan05/bonfire</url>
+  <developer id="io.github.jamjan05">
+    <name>JamJan05</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-10-10">
+      <description>
+        <p>First release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

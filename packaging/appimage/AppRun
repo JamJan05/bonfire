@@ -1,0 +1,6 @@
+#!/bin/sh
+# Bonfire AppImage entry point. ICU is bundled (some minimal systems lack it); OpenSSL, CA
+# certificates, fontconfig and X11 come from the host so they receive security updates.
+HERE="$(dirname "$(readlink -f "$0")")"
+export LD_LIBRARY_PATH="$HERE/usr/lib/icu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+exec "$HERE/usr/lib/bonfire/bonfire" "$@"

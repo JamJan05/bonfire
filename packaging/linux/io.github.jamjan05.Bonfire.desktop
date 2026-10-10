@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Bonfire
+GenericName=Minecraft Server Manager
+GenericName[pl]=Menedżer serwerów Minecraft
+Comment=Run Minecraft servers safely in Docker
+Comment[pl]=Bezpieczne serwery Minecraft w Dockerze
+Exec=bonfire
+Icon=io.github.jamjan05.Bonfire
+Terminal=false
+Categories=Game;
+Keywords=minecraft;server;docker;fabric;paper;
+Keywords[pl]=minecraft;serwer;docker;fabric;paper;
+StartupNotify=true

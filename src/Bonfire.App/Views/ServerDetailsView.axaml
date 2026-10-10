@@ -1,0 +1,436 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:loc="using:Bonfire.App.Localization"
+             x:Class="Bonfire.App.Views.ServerDetailsView"
+             x:DataType="vm:ServerDetailsViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.log">
+      <Setter Property="FontFamily" Value="JetBrains Mono, JetBrainsMono Nerd Font, JetBrainsMonoNL Nerd Font, monospace" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.log.warn">
+      <Setter Property="Foreground" Value="{StaticResource BfWarningBrush}" />
+    </Style>
+    <Style Selector="TextBlock.log.error">
+      <Setter Property="Foreground" Value="#C9675C" />
+    </Style>
+    <Style Selector="ListBox.log ListBoxItem">
+      <Setter Property="Padding" Value="8,1" />
+      <Setter Property="MinHeight" Value="0" />
+    </Style>
+  </UserControl.Styles>
+
+  <DockPanel Margin="32,24">
+    <!-- Header: same live state and actions as the server card -->
+    <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,16" DataContext="{Binding Server}" x:DataType="vm:ServerItemViewModel">
+      <DockPanel>
+        <Button DockPanel.Dock="Left" Margin="0,0,16,0" VerticalAlignment="Center"
+                Content="{Binding [Common_Back], Source={x:Static loc:Localizer.Instance}}"
+                Command="{Binding $parent[UserControl].((vm:ServerDetailsViewModel)DataContext).BackCommand}" />
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Content="{Binding [Server_Action_Start], Source={x:Static loc:Localizer.Instance}}"
+                  Command="{Binding StartCommand}" IsVisible="{Binding ShowStart}" />
+          <Button Content="{Binding [Server_Action_Stop], Source={x:Static loc:Localizer.Instance}}" Command="{Binding StopCommand}" />
+          <Button Content="{Binding [Server_Action_Restart], Source={x:Static loc:Localizer.Instance}}" Command="{Binding RestartCommand}" />
+          <Button Content="{Binding [Server_Action_Repair], Source={x:Static loc:Localizer.Instance}}"
+                  Command="{Binding RepairCommand}" IsVisible="{Binding ShowRepair}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Ellipse Width="11" Height="11" VerticalAlignment="Center" Classes="status"
+                   Classes.ok="{Binding IsOk}" Classes.warning="{Binding IsWarning}" Classes.problem="{Binding IsProblem}" />
+          <TextBlock Classes="h1" Text="{Binding Name}" />
+          <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding StatusText}" />
+          <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="12" Text="{Binding StateDetail}" />
+        </StackPanel>
+      </DockPanel>
+      <Border Classes="notice" IsVisible="{Binding IsStopping}">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="danger"
+                  Content="{Binding [Server_Action_ForceStop], Source={x:Static loc:Localizer.Instance}}"
+                  Command="{Binding ForceStopCommand}" IsVisible="{Binding ShowForceStop}" />
+          <TextBlock Text="{Binding StoppingText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+        </DockPanel>
+      </Border>
+      <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap" Foreground="{StaticResource BfWarningBrush}"
+                 IsVisible="{Binding ErrorMessage, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+
+    <TabControl SelectedIndex="{Binding SelectedTab}">
+      <TabItem Header="{Binding [Details_Logs], Source={x:Static loc:Localizer.Instance}}">
+        <DockPanel DataContext="{Binding Logs}" x:DataType="vm:ServerLogViewModel" Margin="0,12,0,0">
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="12">
+              <CheckBox IsChecked="{Binding ShowInfo}" Content="{Binding [Logs_Info], Source={x:Static loc:Localizer.Instance}}" />
+              <CheckBox IsChecked="{Binding ShowWarn}" Content="{Binding [Logs_Warn], Source={x:Static loc:Localizer.Instance}}" />
+              <CheckBox IsChecked="{Binding ShowError}" Content="{Binding [Logs_Error], Source={x:Static loc:Localizer.Instance}}" />
+              <CheckBox IsChecked="{Binding AutoScroll}" Content="{Binding [Logs_AutoScroll], Source={x:Static loc:Localizer.Instance}}" />
+              <Button Content="{Binding [Logs_Clear], Source={x:Static loc:Localizer.Instance}}" Command="{Binding ClearCommand}" />
+            </StackPanel>
+            <TextBox Text="{Binding FilterText}" PlaceholderText="{Binding [Logs_Filter], Source={x:Static loc:Localizer.Instance}}"
+                     Margin="0,0,16,0" />
+          </DockPanel>
+          <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="16" Margin="0,6,0,0">
+            <TextBlock Classes="muted" FontSize="12" Text="{Binding StatusText}" />
+            <TextBlock FontSize="12" Foreground="{StaticResource BfWarningBrush}" Text="{Binding UnreadText}" />
+            <TextBlock FontSize="12" Foreground="{StaticResource BfWarningBrush}" Text="{Binding DroppedText}" />
+          </StackPanel>
+          <Border Classes="card" Padding="4">
+            <ListBox x:Name="LogList" Classes="log" ItemsSource="{Binding Visible}" Background="Transparent"
+                     SelectionMode="Multiple">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:LogLineView">
+                  <SelectableTextBlock Classes="log" Text="{Binding Text}"
+                                       Classes.warn="{Binding IsWarn}" Classes.error="{Binding IsError}" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </Border>
+        </DockPanel>
+      </TabItem>
+
+      <TabItem Header="{Binding [Details_Console], Source={x:Static loc:Localizer.Instance}}">
+        <DockPanel DataContext="{Binding Console}" x:DataType="vm:ServerConsoleViewModel" Margin="0,12,0,0">
+          <TextBlock DockPanel.Dock="Top" Classes="muted" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"
+                     Text="{Binding [Console_Note], Source={x:Static loc:Localizer.Instance}}" />
+          <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <Button DockPanel.Dock="Right" Margin="8,0,0,0"
+                    Content="{Binding [Console_Clear], Source={x:Static loc:Localizer.Instance}}" Command="{Binding ClearCommand}" />
+            <Button DockPanel.Dock="Right" Margin="8,0,0,0" Classes="accent"
+                    Content="{Binding [Console_Send], Source={x:Static loc:Localizer.Instance}}" Command="{Binding SendCommand}" />
+            <TextBox x:Name="ConsoleInput" Text="{Binding Input}" MaxLength="1000" Classes="log"
+                     FontFamily="JetBrains Mono, JetBrainsMono Nerd Font, JetBrainsMonoNL Nerd Font, monospace"
+                     PlaceholderText="{Binding [Console_Placeholder], Source={x:Static loc:Localizer.Instance}}" />
+          </DockPanel>
+          <Border Classes="card" Padding="8">
+            <ScrollViewer x:Name="ConsoleScroll">
+              <ItemsControl ItemsSource="{Binding Entries}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:ConsoleEntry">
+                    <StackPanel Margin="0,0,0,8">
+                      <SelectableTextBlock Classes="log" Text="{Binding Command}" Foreground="{StaticResource BfEmberBrush}" />
+                      <SelectableTextBlock Classes="log" Text="{Binding Output}" Classes.warn="{Binding IsProblem}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
+          </Border>
+        </DockPanel>
+      </TabItem>
+
+      <TabItem Header="{Binding [Details_Players], Source={x:Static loc:Localizer.Instance}}">
+        <StackPanel DataContext="{Binding Players}" x:DataType="vm:ServerPlayersViewModel" Margin="0,12,0,0" Spacing="12"
+                    HorizontalAlignment="Left" MinWidth="420">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Content="{Binding [Players_Refresh], Source={x:Static loc:Localizer.Instance}}"
+                    Command="{Binding RefreshCommand}" />
+            <TextBlock Classes="h2" Text="{Binding CountText}" VerticalAlignment="Center" />
+          </DockPanel>
+          <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsRefreshing}" />
+          <TextBlock Classes="muted" Text="{Binding NamesNote}" TextWrapping="Wrap" />
+          <TextBlock Foreground="{StaticResource BfWarningBrush}" Text="{Binding ErrorText}" TextWrapping="Wrap" />
+          <Border Classes="card">
+            <ItemsControl ItemsSource="{Binding Names}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <SelectableTextBlock Text="{Binding}" Margin="0,3" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </Border>
+        </StackPanel>
+      </TabItem>
+
+      <TabItem Header="{Binding [Details_Settings], Source={x:Static loc:Localizer.Instance}}">
+        <ScrollViewer Margin="0,12,0,0">
+          <StackPanel DataContext="{Binding Settings}" x:DataType="vm:ServerSettingsViewModel" Spacing="12"
+                      MaxWidth="760" HorizontalAlignment="Left">
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="{Binding [Settings_Ownership], Source={x:Static loc:Localizer.Instance}}" />
+            <Border Classes="card">
+              <StackPanel Spacing="6">
+                <TextBlock Classes="muted" Text="{Binding [Settings_Motd], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBox Text="{Binding Motd}" MaxLength="120" />
+                <TextBlock Classes="muted" FontSize="12" Text="{Binding [Settings_MotdHint], Source={x:Static loc:Localizer.Instance}}" />
+                <Grid ColumnDefinitions="*,16,*" Margin="0,8,0,0">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="muted" Text="{Binding [Settings_GameMode], Source={x:Static loc:Localizer.Instance}}" />
+                    <ComboBox ItemsSource="{Binding GameModes}" SelectedItem="{Binding SelectedGameMode}" HorizontalAlignment="Stretch">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:IChoice"><TextBlock Text="{Binding Label}" /></DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Classes="muted" Text="{Binding [Wizard_Difficulty], Source={x:Static loc:Localizer.Instance}}" />
+                    <ComboBox ItemsSource="{Binding Difficulties}" SelectedItem="{Binding SelectedDifficulty}" HorizontalAlignment="Stretch">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:IChoice"><TextBlock Text="{Binding Label}" /></DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+                </Grid>
+                <Grid ColumnDefinitions="*,16,*,16,*" Margin="0,8,0,0">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="muted" Text="{Binding [Wizard_MaxPlayers], Source={x:Static loc:Localizer.Instance}}" />
+                    <NumericUpDown Value="{Binding MaxPlayers}" Minimum="1" Maximum="1000" FormatString="0" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="4">
+                    <TextBlock Classes="muted" Text="{Binding [Settings_ViewDistance], Source={x:Static loc:Localizer.Instance}}" />
+                    <NumericUpDown Value="{Binding ViewDistance}" Minimum="2" Maximum="32" FormatString="0" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="4" Spacing="4">
+                    <TextBlock Classes="muted" Text="{Binding [Settings_SpawnProtection], Source={x:Static loc:Localizer.Instance}}" />
+                    <NumericUpDown Value="{Binding SpawnProtection}" Minimum="0" Maximum="1000" FormatString="0" />
+                  </StackPanel>
+                </Grid>
+                <CheckBox Margin="0,8,0,0" IsChecked="{Binding Pvp}" Content="{Binding [Settings_Pvp], Source={x:Static loc:Localizer.Instance}}" />
+                <CheckBox IsChecked="{Binding AllowFlight}" Content="{Binding [Settings_AllowFlight], Source={x:Static loc:Localizer.Instance}}" />
+                <CheckBox IsChecked="{Binding CommandBlocks}" Content="{Binding [Settings_CommandBlocks], Source={x:Static loc:Localizer.Instance}}" />
+                <CheckBox IsChecked="{Binding WhitelistEnabled}" Content="{Binding [Settings_Whitelist], Source={x:Static loc:Localizer.Instance}}" />
+                <CheckBox IsChecked="{Binding EnforceWhitelist}" Content="{Binding [Settings_EnforceWhitelist], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
+                           Text="{Binding [Settings_WhitelistNote], Source={x:Static loc:Localizer.Instance}}" />
+              </StackPanel>
+            </Border>
+            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsApplying}" />
+            <TextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" Foreground="{StaticResource BfWarningBrush}" />
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Classes="accent" Content="{Binding [Settings_Save], Source={x:Static loc:Localizer.Instance}}" Command="{Binding SaveCommand}" />
+              <Button Content="{Binding [Settings_Reload], Source={x:Static loc:Localizer.Instance}}" Command="{Binding LoadCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem Header="{Binding [Details_Backups], Source={x:Static loc:Localizer.Instance}}">
+        <DockPanel DataContext="{Binding Backups}" x:DataType="vm:ServerBackupsViewModel" Margin="0,12,0,0">
+          <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,12" MaxWidth="900" HorizontalAlignment="Left">
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Backups_Note], Source={x:Static loc:Localizer.Instance}}" />
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button x:Name="CreateBackupButton" Classes="accent"
+                      Content="{Binding [Backups_Create], Source={x:Static loc:Localizer.Instance}}" Command="{Binding CreateCommand}" />
+              <Button Content="{Binding [Common_Cancel], Source={x:Static loc:Localizer.Instance}}"
+                      Command="{Binding CancelCommand}" IsVisible="{Binding IsWorking}" />
+            </StackPanel>
+            <ProgressBar IsVisible="{Binding IsWorking}" IsIndeterminate="{Binding Percent, Converter={x:Static ObjectConverters.IsNull}}"
+                         Value="{Binding Percent}" Minimum="0" Maximum="100" />
+            <TextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" Foreground="{StaticResource BfWarningBrush}" />
+            <DockPanel IsVisible="{Binding RollbackText, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <Button DockPanel.Dock="Right" Margin="10,0,0,0"
+                      Content="{Binding [Backups_OpenRollback], Source={x:Static loc:Localizer.Instance}}" Command="{Binding OpenRollbackCommand}" />
+              <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding RollbackText}" />
+            </DockPanel>
+            <TextBlock Classes="muted" IsVisible="{Binding !HasBackups}" Text="{Binding [Backups_Empty], Source={x:Static loc:Localizer.Instance}}" />
+          </StackPanel>
+          <ScrollViewer>
+            <ItemsControl ItemsSource="{Binding Backups}" MaxWidth="900" HorizontalAlignment="Left">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:BackupItemViewModel">
+                  <Border Classes="server">
+                    <DockPanel>
+                      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <Button Content="{Binding [Backups_Restore], Source={x:Static loc:Localizer.Instance}}"
+                                IsVisible="{Binding CanRestore}"
+                                Command="{Binding $parent[ItemsControl].((vm:ServerBackupsViewModel)DataContext).RestoreCommand}"
+                                CommandParameter="{Binding}" />
+                        <Button Classes="danger" Content="{Binding [Backups_Delete], Source={x:Static loc:Localizer.Instance}}"
+                                IsVisible="{Binding CanDelete}"
+                                Command="{Binding $parent[ItemsControl].((vm:ServerBackupsViewModel)DataContext).DeleteCommand}"
+                                CommandParameter="{Binding}" />
+                      </StackPanel>
+                      <StackPanel Spacing="2">
+                        <TextBlock Classes="h2" Text="{Binding Title}" />
+                        <TextBlock Classes="muted" FontSize="13" Text="{Binding Details}" />
+                        <TextBlock Classes="muted" FontSize="12" IsVisible="{Binding IsNewestGood}"
+                                   Text="{Binding [Backups_Newest], Source={x:Static loc:Localizer.Instance}}" />
+                        <TextBlock FontSize="12" Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" Text="{Binding Problem}" />
+                      </StackPanel>
+                    </DockPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </DockPanel>
+      </TabItem>
+
+      <TabItem Header="{Binding [Details_Content], Source={x:Static loc:Localizer.Instance}}">
+        <DockPanel DataContext="{Binding Content}" x:DataType="vm:ServerContentViewModel" Margin="0,12,0,0">
+          <TextBlock DockPanel.Dock="Top" Classes="muted" IsVisible="{Binding !IsSupported}" TextWrapping="Wrap"
+                     Text="{Binding [Content_Unsupported], Source={x:Static loc:Localizer.Instance}}" />
+          <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,12" MaxWidth="1000" HorizontalAlignment="Left" IsVisible="{Binding IsSupported}">
+            <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Content_Note], Source={x:Static loc:Localizer.Instance}}" />
+            <ProgressBar IsVisible="{Binding IsWorking}" IsIndeterminate="{Binding Percent, Converter={x:Static ObjectConverters.IsNull}}"
+                         Value="{Binding Percent}" Minimum="0" Maximum="100" />
+            <DockPanel>
+              <Button DockPanel.Dock="Right" Margin="10,0,0,0" Content="{Binding [Common_Cancel], Source={x:Static loc:Localizer.Instance}}"
+                      Command="{Binding CancelCommand}" IsVisible="{Binding IsWorking}" />
+              <SelectableTextBlock Text="{Binding ResultMessage}" TextWrapping="Wrap" Foreground="{StaticResource BfWarningBrush}" />
+            </DockPanel>
+          </StackPanel>
+          <Grid ColumnDefinitions="*,16,*" IsVisible="{Binding IsSupported}">
+            <DockPanel Grid.Column="0">
+              <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="{Binding [Content_AddLocal], Source={x:Static loc:Localizer.Instance}}"
+                          Command="{Binding AddLocalCommand}" />
+                  <Button DockPanel.Dock="Right" Margin="0,0,8,0" Content="{Binding [Content_CheckUpdates], Source={x:Static loc:Localizer.Instance}}"
+                          Command="{Binding CheckUpdatesCommand}" />
+                  <Button DockPanel.Dock="Right" Margin="0,0,8,0" Content="{Binding [Content_Refresh], Source={x:Static loc:Localizer.Instance}}"
+                          Command="{Binding LoadCommand}" />
+                  <TextBlock Classes="h2" VerticalAlignment="Center" Text="{Binding KindText}" />
+                </DockPanel>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <CheckBox IsChecked="{Binding IncludePrereleases}" Content="{Binding [Content_IncludePrereleases], Source={x:Static loc:Localizer.Instance}}" />
+                  <Button Classes="accent" Content="{Binding UpdateAllText}" Command="{Binding UpdateAllCommand}"
+                          IsVisible="{Binding HasUpdates}" />
+                </StackPanel>
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding Notice}"
+                           IsVisible="{Binding Notice, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                <TextBlock Classes="muted" IsVisible="{Binding !HasItems}" Text="{Binding [Content_Empty], Source={x:Static loc:Localizer.Instance}}" />
+              </StackPanel>
+              <Expander DockPanel.Dock="Bottom" Margin="0,8,0,0" HorizontalAlignment="Stretch" IsVisible="{Binding HasHistory}"
+                        Header="{Binding [Content_History], Source={x:Static loc:Localizer.Instance}}">
+                <StackPanel Spacing="6">
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Classes="danger" Content="{Binding [Content_UndoLast], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding UndoCommand}" />
+                    <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding UndoBlockerText}" />
+                  </DockPanel>
+                  <ScrollViewer MaxHeight="220">
+                    <ItemsControl ItemsSource="{Binding History}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:HistoryItemViewModel">
+                          <StackPanel Margin="0,4">
+                            <TextBlock FontSize="13" Text="{Binding Title}" />
+                            <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding Details}" />
+                          </StackPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </ScrollViewer>
+                </StackPanel>
+              </Expander>
+              <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Items}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ContentItemViewModel">
+                      <Border Classes="server">
+                        <DockPanel>
+                          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                            <Button Classes="accent" Content="{Binding [Content_Update], Source={x:Static loc:Localizer.Instance}}" IsVisible="{Binding CanUpdate}"
+                                    Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).UpdateCommand}" CommandParameter="{Binding}" />
+                            <Button Content="{Binding [Content_Pin], Source={x:Static loc:Localizer.Instance}}" IsVisible="{Binding CanPin}"
+                                    Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).PinCommand}" CommandParameter="{Binding}" />
+                            <Button Content="{Binding [Content_Unpin], Source={x:Static loc:Localizer.Instance}}" IsVisible="{Binding IsPinned}"
+                                    Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).UnpinCommand}" CommandParameter="{Binding}" />
+                            <Button Content="{Binding [Content_Disable], Source={x:Static loc:Localizer.Instance}}" IsVisible="{Binding IsEnabled}"
+                                    Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).DisableCommand}" CommandParameter="{Binding}" />
+                            <Button Content="{Binding [Content_Enable], Source={x:Static loc:Localizer.Instance}}" IsVisible="{Binding IsDisabled}"
+                                    Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).EnableCommand}" CommandParameter="{Binding}" />
+                            <Button Classes="danger" Content="{Binding [Content_Remove], Source={x:Static loc:Localizer.Instance}}"
+                                    Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).RemoveCommand}" CommandParameter="{Binding}" />
+                          </StackPanel>
+                          <StackPanel Spacing="2">
+                            <TextBlock Classes="h2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="muted" FontSize="12" Text="{Binding Details}" TextWrapping="Wrap" />
+                            <TextBlock Classes="muted" FontSize="12" Text="{Binding Source}" />
+                            <TextBlock FontSize="12" Foreground="{StaticResource BfEmberBrush}" TextWrapping="Wrap" Text="{Binding UpdateText}"
+                                       IsVisible="{Binding UpdateText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                            <TextBlock FontSize="12" Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" Text="{Binding Problem}"
+                                       IsVisible="{Binding Problem, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                          </StackPanel>
+                        </DockPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </DockPanel>
+            <DockPanel Grid.Column="2">
+              <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,8">
+                <TextBlock Classes="h2" Text="{Binding [Content_Browse], Source={x:Static loc:Localizer.Instance}}" />
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Margin="8,0,0,0" Classes="accent" IsDefault="True"
+                          Content="{Binding [Content_Search], Source={x:Static loc:Localizer.Instance}}" Command="{Binding SearchCommand}" />
+                  <ComboBox DockPanel.Dock="Right" Margin="8,0,0,0" SelectedIndex="{Binding SortIndex}">
+                    <ComboBoxItem Content="{Binding [Content_Sort_Relevance], Source={x:Static loc:Localizer.Instance}}" />
+                    <ComboBoxItem Content="{Binding [Content_Sort_Downloads], Source={x:Static loc:Localizer.Instance}}" />
+                    <ComboBoxItem Content="{Binding [Content_Sort_Updated], Source={x:Static loc:Localizer.Instance}}" />
+                  </ComboBox>
+                  <TextBox Text="{Binding Query}" MaxLength="100"
+                           PlaceholderText="{Binding [Content_SearchHint], Source={x:Static loc:Localizer.Instance}}" />
+                </DockPanel>
+              </StackPanel>
+              <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8" IsVisible="{Binding HasSuggestions}">
+                <TextBlock Classes="muted" Text="{Binding [Content_SuggestionsTitle], Source={x:Static loc:Localizer.Instance}}" />
+                <ItemsControl x:Name="SuggestionList" ItemsSource="{Binding Suggestions}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SearchHitViewModel">
+                      <Border Classes="server">
+                        <DockPanel>
+                          <Button DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0"
+                                  Content="{Binding [Content_Install], Source={x:Static loc:Localizer.Instance}}"
+                                  Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).InstallCommand}" CommandParameter="{Binding}" />
+                          <StackPanel Spacing="2">
+                            <TextBlock Classes="h2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="muted" FontSize="12" Text="{Binding Details}" />
+                          </StackPanel>
+                        </DockPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+              <Button DockPanel.Dock="Bottom" Margin="0,8,0,0" IsVisible="{Binding HasMore}"
+                      Content="{Binding [Content_More], Source={x:Static loc:Localizer.Instance}}" Command="{Binding MoreCommand}" />
+              <ScrollViewer>
+                <ItemsControl ItemsSource="{Binding Results}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SearchHitViewModel">
+                      <Border Classes="server">
+                        <DockPanel>
+                          <Button DockPanel.Dock="Right" VerticalAlignment="Center" Margin="8,0,0,0"
+                                  Content="{Binding [Content_Install], Source={x:Static loc:Localizer.Instance}}"
+                                  Command="{Binding $parent[ItemsControl].((vm:ServerContentViewModel)DataContext).InstallCommand}" CommandParameter="{Binding}" />
+                          <StackPanel Spacing="2">
+                            <TextBlock Classes="h2" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock FontSize="13" Text="{Binding Description}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="muted" FontSize="12" Text="{Binding Details}" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </DockPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </DockPanel>
+          </Grid>
+        </DockPanel>
+      </TabItem>
+
+      <TabItem Header="{Binding [Details_Info], Source={x:Static loc:Localizer.Instance}}">
+        <ScrollViewer Margin="0,12,0,0">
+          <StackPanel Spacing="16" MaxWidth="1000" HorizontalAlignment="Left">
+            <Border Classes="card">
+              <ItemsControl ItemsSource="{Binding Info}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:DetailRow">
+                    <Grid ColumnDefinitions="180,*" Margin="0,4">
+                      <TextBlock Classes="muted" Text="{Binding Label}" />
+                      <SelectableTextBlock Grid.Column="1" Text="{Binding Value}" TextWrapping="Wrap" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Border>
+            <Button Content="{Binding [Info_OpenDataDir], Source={x:Static loc:Localizer.Instance}}" Command="{Binding OpenDataDirCommand}" />
+          </StackPanel>
+        </ScrollViewer>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

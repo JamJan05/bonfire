@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="App_Subtitle" xml:space="preserve"><value>serwery Minecraft w Dockerze</value></data>
+  <data name="Window_Title" xml:space="preserve"><value>{0} — serwery Minecraft</value></data>
+  <data name="Nav_Servers" xml:space="preserve"><value>Serwery</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Ustawienia</value></data>
+  <data name="Nav_About" xml:space="preserve"><value>O programie</value></data>
+  <data name="Common_Close" xml:space="preserve"><value>Zamknij</value></data>
+  <data name="Common_UnavailableInVersion" xml:space="preserve"><value>Niedostępne w tej wersji</value></data>
+  <data name="Servers_NewServer" xml:space="preserve"><value>Nowy serwer</value></data>
+  <data name="Common_Unknown" xml:space="preserve"><value>nieznane</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Anuluj</value></data>
+  <data name="Common_Back" xml:space="preserve"><value>Wstecz</value></data>
+  <data name="Server_Action_Details" xml:space="preserve"><value>Szczegóły</value></data>
+  <data name="Details_Logs" xml:space="preserve"><value>Logi</value></data>
+  <data name="Details_Info" xml:space="preserve"><value>Informacje</value></data>
+  <data name="Details_Console" xml:space="preserve"><value>Konsola</value></data>
+  <data name="Details_Players" xml:space="preserve"><value>Gracze</value></data>
+  <data name="Details_Settings" xml:space="preserve"><value>Ustawienia</value></data>
+  <data name="Details_Backups" xml:space="preserve"><value>Kopie zapasowe</value></data>
+  <data name="Details_Content" xml:space="preserve"><value>Dodatki</value></data>
+  <data name="Content_Mods" xml:space="preserve"><value>Mody</value></data>
+  <data name="Content_Plugins" xml:space="preserve"><value>Pluginy</value></data>
+  <data name="Content_Unsupported" xml:space="preserve"><value>Serwery Vanilla nie mają modów ani pluginów. Utwórz serwer Fabric lub Paper, aby używać dodatków.</value></data>
+  <data name="Content_Note" xml:space="preserve"><value>Zmiany wymagają zatrzymanego serwera. Pliki pobierane są tylko z Modrinth i sprawdzane skrótem SHA-512. Wyłączone pliki są przenoszone poza katalog serwera.</value></data>
+  <data name="Content_Refresh" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="Content_AddLocal" xml:space="preserve"><value>Dodaj plik lokalny…</value></data>
+  <data name="Content_Empty" xml:space="preserve"><value>Nic jeszcze nie zainstalowano.</value></data>
+  <data name="Content_Browse" xml:space="preserve"><value>Modrinth</value></data>
+  <data name="Content_Search" xml:space="preserve"><value>Szukaj</value></data>
+  <data name="Content_SearchHint" xml:space="preserve"><value>Szukaj w Modrinth…</value></data>
+  <data name="Content_Sort_Relevance" xml:space="preserve"><value>Trafność</value></data>
+  <data name="Content_Sort_Downloads" xml:space="preserve"><value>Pobrania</value></data>
+  <data name="Content_Sort_Updated" xml:space="preserve"><value>Ostatnio aktualizowane</value></data>
+  <data name="Content_More" xml:space="preserve"><value>Wczytaj więcej</value></data>
+  <data name="Content_NoResults" xml:space="preserve"><value>Brak zgodnych wyników.</value></data>
+  <data name="Content_By" xml:space="preserve"><value>autor: {0}</value></data>
+  <data name="Content_Downloads" xml:space="preserve"><value>pobrania: {0}</value></data>
+  <data name="Content_Updated" xml:space="preserve"><value>aktualizacja: {0}</value></data>
+  <data name="Content_ClientOnly" xml:space="preserve"><value>tylko klient</value></data>
+  <data name="Content_Install" xml:space="preserve"><value>Zainstaluj</value></data>
+  <data name="Content_Remove" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Content_Disable" xml:space="preserve"><value>Wyłącz</value></data>
+  <data name="Content_Enable" xml:space="preserve"><value>Włącz</value></data>
+  <data name="Content_Disabled" xml:space="preserve"><value>wyłączony</value></data>
+  <data name="Content_Dependency" xml:space="preserve"><value>wymagana zależność</value></data>
+  <data name="Content_Total" xml:space="preserve"><value>Łącznie do pobrania: {0}</value></data>
+  <data name="Content_Optional" xml:space="preserve"><value>Opcjonalne dodatki ({0}) nie są instalowane automatycznie.</value></data>
+  <data name="Content_Source_Modrinth" xml:space="preserve"><value>Modrinth — zainstalowany przez Bonfire</value></data>
+  <data name="Content_Source_Detected" xml:space="preserve"><value>Modrinth — rozpoznany po skrócie</value></data>
+  <data name="Content_Source_Local" xml:space="preserve"><value>Plik lokalny — zgodność niezweryfikowana</value></data>
+  <data name="Content_Source_Unverified" xml:space="preserve"><value>Nieznany plik — zgodność i zależności niezweryfikowane</value></data>
+  <data name="Content_Modified" xml:space="preserve"><value>Plik zmienił się od instalacji; zapisana tożsamość nie jest wiarygodna.</value></data>
+  <data name="Content_IdentificationFailed" xml:space="preserve"><value>Nie udało się połączyć z Modrinth, więc nieznanych plików nie sprawdzono.</value></data>
+  <data name="Content_UnverifiedPresent" xml:space="preserve"><value>Aktywne są niezweryfikowane pliki: sprawdzanie zależności ich nie obejmuje.</value></data>
+  <data name="Content_MissingFiles" xml:space="preserve"><value>Zapisane, ale brakujące: {0}</value></data>
+  <data name="Content_SkippedFiles" xml:space="preserve"><value>Pominięte (dowiązanie, katalog lub niebezpieczna nazwa): {0}</value></data>
+  <data name="Content_ConfirmInstallTitle" xml:space="preserve"><value>Zainstalować {0}?</value></data>
+  <data name="Content_ConfirmLocalTitle" xml:space="preserve"><value>Zainstalować plik lokalny?</value></data>
+  <data name="Content_LocalInfo" xml:space="preserve"><value>{0} {1}
+Plik: {2} ({3})</value></data>
+  <data name="Content_LocalWarning_Unverified" xml:space="preserve"><value>Nie znaleziono w Modrinth: zgodność i zależności nie są sprawdzone. Instaluj tylko pliki, którym ufasz.</value></data>
+  <data name="Content_LocalWarning_NotChecked" xml:space="preserve"><value>Nie udało się połączyć z Modrinth: zgodność i zależności nie są sprawdzone.</value></data>
+  <data name="Content_LocalWarning_MissingDependencies" xml:space="preserve"><value>Brakuje wymaganych dodatków: {0}</value></data>
+  <data name="Content_PickTitle" xml:space="preserve"><value>Wybierz plik .jar</value></data>
+  <data name="Content_ConfirmRemoveTitle" xml:space="preserve"><value>Usunąć {0}?</value></data>
+  <data name="Content_ConfirmRemoveMessage" xml:space="preserve"><value>Plik zostanie usunięty. Żaden znany aktywny dodatek go nie wymaga.</value></data>
+  <data name="Content_ConfirmRemoveUnknownMessage" xml:space="preserve"><value>Plik zostanie usunięty. Jego zależności są nieznane, więc inne dodatki mogą go potrzebować.</value></data>
+  <data name="Content_Installed" xml:space="preserve"><value>Zainstalowano: {0}</value></data>
+  <data name="Content_Removed" xml:space="preserve"><value>Usunięto: {0}</value></data>
+  <data name="Content_Enabled" xml:space="preserve"><value>Włączono: {0}</value></data>
+  <data name="Content_DisabledDone" xml:space="preserve"><value>Wyłączono: {0}</value></data>
+  <data name="Content_Cancelled" xml:space="preserve"><value>Anulowano; nic nie zmieniono.</value></data>
+  <data name="Content_PlanBlocked" xml:space="preserve"><value>Nie można zainstalować {0}:
+{1}</value></data>
+  <data name="Content_RecoveryFailed" xml:space="preserve"><value>Pliki nie zgadzają się z przerwaną zmianą. Niczego nie nadpisano; sprawdź katalogi dodatków i użyj „Napraw”.</value></data>
+  <data name="Content_InvalidJar" xml:space="preserve"><value>Plik nie jest poprawnym archiwum JAR (albo jest za duży).</value></data>
+  <data name="Content_DiskError" xml:space="preserve"><value>Operacja na plikach nie powiodła się: {0}</value></data>
+  <data name="Content_Network_ProviderUnavailable" xml:space="preserve"><value>Modrinth jest niedostępny. Spróbuj później.</value></data>
+  <data name="Content_Network_RateLimited" xml:space="preserve"><value>Modrinth prosi o zwolnienie. Spróbuj za minutę.</value></data>
+  <data name="Content_Network_InvalidResponse" xml:space="preserve"><value>Modrinth zwrócił dane, które nie przeszły weryfikacji.</value></data>
+  <data name="Content_Network_Unsupported" xml:space="preserve"><value>Niedostępne w Modrinth dla tego serwera.</value></data>
+  <data name="ContentError_NotSupported" xml:space="preserve"><value>Ten typ serwera nie ma dodatków.</value></data>
+  <data name="ContentError_PlanStale" xml:space="preserve"><value>Pliki lub ustawienia zmieniły się od przygotowania planu. Spróbuj ponownie.</value></data>
+  <data name="ContentError_PlanBlocked" xml:space="preserve"><value>Plan ma nierozwiązane problemy.</value></data>
+  <data name="ContentError_NotFound" xml:space="preserve"><value>Nie znaleziono pliku: {0}</value></data>
+  <data name="ContentError_NameCollision" xml:space="preserve"><value>Plik o tej nazwie już istnieje: {0}</value></data>
+  <data name="ContentError_HasDependents" xml:space="preserve"><value>Nadal wymagany przez: {0}</value></data>
+  <data name="ContentError_MissingDependencies" xml:space="preserve"><value>Wymagane dodatki nie są aktywne: {0}</value></data>
+  <data name="ContentError_Incompatible" xml:space="preserve"><value>Niezgodny z: {0}</value></data>
+  <data name="ContentError_WrongKind" xml:space="preserve"><value>{0} nie jest modem ani pluginem dla tego typu serwera.</value></data>
+  <data name="ContentError_AlreadyInstalled" xml:space="preserve"><value>Już zainstalowany: {0}</value></data>
+  <data name="PlanProblem_AlreadyInstalled" xml:space="preserve"><value>{0} jest już zainstalowany.</value></data>
+  <data name="PlanProblem_NoCompatibleVersion" xml:space="preserve"><value>Żadna wersja {0} nie pasuje do tego serwera.</value></data>
+  <data name="PlanProblem_VersionIncompatible" xml:space="preserve"><value>Wymagana wersja {1} projektu {0} nie pasuje do tego serwera.</value></data>
+  <data name="PlanProblem_NoInstallableFile" xml:space="preserve"><value>{0} nie ma jednego pliku do zainstalowania.</value></data>
+  <data name="PlanProblem_UnresolvedDependency" xml:space="preserve"><value>{0} wymaga czegoś spoza Modrinth ({1}).</value></data>
+  <data name="PlanProblem_InstalledVersionConflict" xml:space="preserve"><value>Zainstalowana jest inna wersja {0} niż wymagana ({1}).</value></data>
+  <data name="PlanProblem_VersionConflict" xml:space="preserve"><value>Dwa dodatki wymagają różnych wersji {0}.</value></data>
+  <data name="PlanProblem_DependencyDisabled" xml:space="preserve"><value>{0} jest zainstalowany, ale wyłączony. Najpierw go włącz.</value></data>
+  <data name="PlanProblem_Incompatible" xml:space="preserve"><value>{0} jest niezgodny z {1}.</value></data>
+  <data name="PlanProblem_NameCollision" xml:space="preserve"><value>Nazwa pliku {1} dla {0} jest już zajęta.</value></data>
+  <data name="PlanProblem_LimitExceeded" xml:space="preserve"><value>Zależności są zbyt liczne lub zbyt złożone, by rozwiązać je automatycznie.</value></data>
+  <data name="PlanWarning_Prerelease" xml:space="preserve"><value>{0}: wersja testowa (alfa/beta).</value></data>
+  <data name="PlanWarning_ClientOnly" xml:space="preserve"><value>{0} to dodatek po stronie klienta; na serwerze jest bezużyteczny lub szkodliwy.</value></data>
+  <data name="PlanWarning_EnvironmentUnknown" xml:space="preserve"><value>{0} nie podaje, czy działa na serwerze.</value></data>
+  <data name="PlanWarning_UnverifiedFilesPresent" xml:space="preserve"><value>Zainstalowane są niezweryfikowane pliki; konfliktów z nimi nie da się sprawdzić.</value></data>
+  <data name="Content_CheckUpdates" xml:space="preserve"><value>Sprawdź aktualizacje</value></data>
+  <data name="Content_IncludePrereleases" xml:space="preserve"><value>Uwzględniaj wersje testowe</value></data>
+  <data name="Content_UpdateAll" xml:space="preserve"><value>Aktualizuj wszystkie ({0})</value></data>
+  <data name="Content_Update" xml:space="preserve"><value>Aktualizuj</value></data>
+  <data name="Content_Pin" xml:space="preserve"><value>Przypnij</value></data>
+  <data name="Content_Unpin" xml:space="preserve"><value>Odepnij</value></data>
+  <data name="Content_PinnedTag" xml:space="preserve"><value>przypięty (bez aktualizacji)</value></data>
+  <data name="Content_Pinned" xml:space="preserve"><value>Przypięto: {0}</value></data>
+  <data name="Content_Unpinned" xml:space="preserve"><value>Odpięto: {0}</value></data>
+  <data name="Content_UpdateAvailable" xml:space="preserve"><value>Dostępna aktualizacja: {0}</value></data>
+  <data name="Content_UpToDate" xml:space="preserve"><value>Aktualny</value></data>
+  <data name="Content_CurrentUnavailable" xml:space="preserve"><value>Zainstalowana wersja nie jest już oferowana dla tego serwera; aktualizacja nie jest proponowana.</value></data>
+  <data name="Content_CheckFailed" xml:space="preserve"><value>Nie udało się sprawdzić aktualizacji.</value></data>
+  <data name="Content_CheckIncomplete" xml:space="preserve"><value>Sprawdzanie niepełne: części dodatków nie udało się sprawdzić.</value></data>
+  <data name="Content_NoUpdatesSomeUnavailable" xml:space="preserve"><value>Brak proponowanych aktualizacji. Części zainstalowanych wersji nie oferuje się już, więc nie dało się ich porównać.</value></data>
+  <data name="Content_AllUpToDate" xml:space="preserve"><value>Wszystko jest aktualne.</value></data>
+  <data name="Content_UpdatesFound" xml:space="preserve"><value>Dostępne aktualizacje: {0}</value></data>
+  <data name="Content_ConfirmUpdateTitle" xml:space="preserve"><value>Zaktualizować {0}?</value></data>
+  <data name="Content_UpdateDone" xml:space="preserve"><value>Zaktualizowano: {0}</value></data>
+  <data name="Content_UpdateNote" xml:space="preserve"><value>Stare wersje (−) zostaną zastąpione nowymi (+). Świat nie jest zmieniany, ale nowa wersja może go przekonwertować.</value></data>
+  <data name="Content_SuggestionsTitle" xml:space="preserve"><value>Opcjonalne dodatki sugerowane przez zainstalowane:</value></data>
+  <data name="Content_Suggested" xml:space="preserve"><value>opcjonalny</value></data>
+  <data name="ContentError_Pinned" xml:space="preserve"><value>Przypięte dodatki nie są aktualizowane: {0}</value></data>
+  <data name="ContentError_Unidentified" xml:space="preserve"><value>Przypinać i aktualizować można tylko dodatki rozpoznane w Modrinth: {0}</value></data>
+  <data name="Content_History" xml:space="preserve"><value>Historia zmian</value></data>
+  <data name="Content_UndoLast" xml:space="preserve"><value>Cofnij ostatnią zmianę</value></data>
+  <data name="Content_Undo" xml:space="preserve"><value>Cofnij</value></data>
+  <data name="Content_Undone" xml:space="preserve"><value>Cofnięto ostatnią zmianę.</value></data>
+  <data name="Content_ConfirmUndoTitle" xml:space="preserve"><value>Cofnąć: {0}?</value></data>
+  <data name="Content_ConfirmUndoMessage" xml:space="preserve"><value>Cofnięcie przywraca pliki dodatków i ich metadane. Nie cofa zmian świata ani konfiguracji wykonanych po uruchomieniu serwera.</value></data>
+  <data name="Content_UndoBlocked_StateChanged" xml:space="preserve"><value>Ostatniej zmiany nie można cofnąć: dodatki, przypięcia lub wersje serwera zmieniły się od tego czasu. Starsze zmiany cofa się tylko po kolei.</value></data>
+  <data name="Content_UndoBlocked_Pending" xml:space="preserve"><value>Najpierw napraw przerwaną operację.</value></data>
+  <data name="Content_Kind_Install" xml:space="preserve"><value>instalacja</value></data>
+  <data name="Content_Kind_Update" xml:space="preserve"><value>aktualizacja</value></data>
+  <data name="Content_Kind_Remove" xml:space="preserve"><value>usunięcie</value></data>
+  <data name="Content_Kind_Disable" xml:space="preserve"><value>wyłączenie</value></data>
+  <data name="Content_Kind_Enable" xml:space="preserve"><value>włączenie</value></data>
+  <data name="Content_Kind_LocalInstall" xml:space="preserve"><value>instalacja pliku lokalnego</value></data>
+  <data name="Content_Kind_Undo" xml:space="preserve"><value>cofnięcie</value></data>
+  <data name="ContentError_UndoUnavailable" xml:space="preserve"><value>Tej zmiany nie da się już bezpiecznie cofnąć: {0}</value></data>
+  <data name="Backups_RestoredWithoutContent" xml:space="preserve"><value>Przywrócono. Ta starsza kopia nie zawiera zapisu dodatków ani wyłączonych plików; obecne przeniesiono do katalogu wycofania.</value></data>
+  <data name="Backups_Note" xml:space="preserve"><value>Kopie zawierają wszystkie dane serwera (świat, konfigurację, mody, pluginy) — także hasło RCON z server.properties — i są przechowywane prywatnie w katalogu danych Bonfire. Działający serwer zostanie na czas kopii zatrzymany, a potem uruchomiony ponownie.</value></data>
+  <data name="Backups_Create" xml:space="preserve"><value>Utwórz kopię teraz</value></data>
+  <data name="Backups_Restore" xml:space="preserve"><value>Przywróć</value></data>
+  <data name="Backups_Delete" xml:space="preserve"><value>Usuń</value></data>
+  <data name="Backups_Empty" xml:space="preserve"><value>Nie ma jeszcze kopii.</value></data>
+  <data name="Backups_Kind_Manual" xml:space="preserve"><value>Kopia</value></data>
+  <data name="Backups_Kind_RestorePoint" xml:space="preserve"><value>Punkt przywracania (przed zmianą modów)</value></data>
+  <data name="Backups_Size" xml:space="preserve"><value>archiwum {0} · dane {1} · plików: {2}</value></data>
+  <data name="Backups_Unusable" xml:space="preserve"><value>Uszkodzona — nie da się przywrócić: {0}</value></data>
+  <data name="Backups_Newest" xml:space="preserve"><value>najnowsza dobra kopia (chroniona)</value></data>
+  <data name="Backups_Working" xml:space="preserve"><value>Trwa… {0}%</value></data>
+  <data name="Backups_Created" xml:space="preserve"><value>Kopia utworzona i sprawdzona.</value></data>
+  <data name="Backups_Restored" xml:space="preserve"><value>Przywrócono. Uruchom serwer, gdy zechcesz.</value></data>
+  <data name="Backups_Deleted" xml:space="preserve"><value>Kopia usunięta.</value></data>
+  <data name="Backups_Cancelled" xml:space="preserve"><value>Anulowano. Nic nie zmieniono.</value></data>
+  <data name="Backups_Failed" xml:space="preserve"><value>Niepowodzenie: {0}</value></data>
+  <data name="Backups_ForceStopped" xml:space="preserve"><value>Serwer nie zatrzymał się czysto (wymuszenie, awaria albo stan nieznany), więc świat mógł nie zostać zapisany — kopii nie utworzono i serwera nie uruchomiono ponownie.</value></data>
+  <data name="Backups_Rollback" xml:space="preserve"><value>Dane sprzed ostatniego przywrócenia są w: {0}</value></data>
+  <data name="Backups_OpenRollback" xml:space="preserve"><value>Otwórz katalog</value></data>
+  <data name="Backups_ConfirmStopTitle" xml:space="preserve"><value>Zatrzymać {0} na czas kopii?</value></data>
+  <data name="Backups_ConfirmStopMessage" xml:space="preserve"><value>Serwer działa. Zostanie łagodnie zatrzymany, zarchiwizowany i uruchomiony ponownie. Gracze zostaną na chwilę rozłączeni. ID serwera: {0}.</value></data>
+  <data name="Backups_ConfirmRestoreTitle" xml:space="preserve"><value>Przywrócić {0} z kopii z {1}?</value></data>
+  <data name="Backups_ConfirmRestoreMessage" xml:space="preserve"><value>Świat, konfiguracja, mody i pluginy zostaną zastąpione kopią. Obecne dane zostaną zachowane jako „dane sprzed przywrócenia” (zachowywana jest tylko najnowsza taka kopia). Ustawienia zarządzane przez Bonfire (MOTD, tryb gry…) zostaną takie jak teraz. Serwer pozostanie zatrzymany. ID serwera: {0}.</value></data>
+  <data name="Backups_ConfirmDeleteTitle" xml:space="preserve"><value>Usunąć kopię z {0}?</value></data>
+  <data name="Backups_ConfirmDeleteMessage" xml:space="preserve"><value>Usuniętej kopii nie da się odzyskać.</value></data>
+  <data name="Backups_StopFirst" xml:space="preserve"><value>Przed przywróceniem zatrzymaj serwer.</value></data>
+  <data name="BackupError_ServerRunning" xml:space="preserve"><value>Serwer musi być zatrzymany.</value></data>
+  <data name="BackupError_UnsupportedEntry" xml:space="preserve"><value>Dane zawierają coś, czego nie da się bezpiecznie zarchiwizować (dowiązanie, urządzenie albo nieczytelny plik): {0}</value></data>
+  <data name="BackupError_NotEnoughSpace" xml:space="preserve"><value>Za mało wolnego miejsca na dysku.</value></data>
+  <data name="BackupError_Corrupt" xml:space="preserve"><value>Kopia jest uszkodzona albo niepełna.</value></data>
+  <data name="BackupError_VersionMismatch" xml:space="preserve"><value>Kopia pochodzi z innej wersji Minecrafta albo loadera.</value></data>
+  <data name="BackupError_LastGoodBackup" xml:space="preserve"><value>Najnowszej dobrej kopii nie można usunąć.</value></data>
+  <data name="BackupError_RestorePending" xml:space="preserve"><value>Najpierw trzeba dokończyć przerwaną operację („Napraw”).</value></data>
+  <data name="Settings_BackupsToKeep" xml:space="preserve"><value>Liczba kopii przechowywanych dla serwera</value></data>
+  <data name="Settings_BackupsToKeepHint" xml:space="preserve"><value>Starsze kopie są usuwane po sprawdzeniu nowej. Najnowsza dobra kopia jest zawsze zachowywana.</value></data>
+  <data name="Settings_Ownership" xml:space="preserve"><value>Bonfire ustawia te wartości przy każdym starcie serwera. Pola zmienione tutaj przechodzą pod zarządzanie Bonfire; ręczne zmiany zarządzanych kluczy w server.properties są nadpisywane przy starcie. Pozostałych właściwości Bonfire nie ustawia.</value></data>
+  <data name="Settings_Motd" xml:space="preserve"><value>Wiadomość dnia (MOTD)</value></data>
+  <data name="Settings_MotdHint" xml:space="preserve"><value>Najwyżej 120 znaków; kody kolorów § dozwolone; %, $ i \ nie.</value></data>
+  <data name="Settings_GameMode" xml:space="preserve"><value>Tryb gry</value></data>
+  <data name="GameMode_Survival" xml:space="preserve"><value>Przetrwanie</value></data>
+  <data name="GameMode_Creative" xml:space="preserve"><value>Kreatywny</value></data>
+  <data name="GameMode_Adventure" xml:space="preserve"><value>Przygoda</value></data>
+  <data name="GameMode_Spectator" xml:space="preserve"><value>Obserwator</value></data>
+  <data name="Settings_Pvp" xml:space="preserve"><value>Gracze mogą sobie zadawać obrażenia (PvP)</value></data>
+  <data name="Settings_ViewDistance" xml:space="preserve"><value>Zasięg widzenia (chunki, 2–32)</value></data>
+  <data name="Settings_SpawnProtection" xml:space="preserve"><value>Promień ochrony spawnu (0 = wyłączona)</value></data>
+  <data name="Settings_AllowFlight" xml:space="preserve"><value>Pozwól na latanie (mody/pluginy)</value></data>
+  <data name="Settings_CommandBlocks" xml:space="preserve"><value>Włącz bloki poleceń</value></data>
+  <data name="Settings_Whitelist" xml:space="preserve"><value>Whitelista włączona</value></data>
+  <data name="Settings_EnforceWhitelist" xml:space="preserve"><value>Wyrzucaj od razu graczy usuniętych z whitelisty</value></data>
+  <data name="Settings_WhitelistNote" xml:space="preserve"><value>Graczy na whiteliście zmieniasz w konsoli: whitelist add &lt;nazwa&gt;, whitelist remove &lt;nazwa&gt;. Lista z kreatora wypełnia tylko pustą whitelistę.</value></data>
+  <data name="Settings_Save" xml:space="preserve"><value>Zapisz ustawienia</value></data>
+  <data name="Settings_Reload" xml:space="preserve"><value>Wczytaj ponownie</value></data>
+  <data name="Settings_ConfirmTitle" xml:space="preserve"><value>Zastosować ustawienia na {0}?</value></data>
+  <data name="Settings_ConfirmMessage" xml:space="preserve"><value>Serwer działa. Zostanie łagodnie zatrzymany, jego kontener odtworzony z nowymi ustawieniami (świat i dane zostają) i uruchomiony ponownie. ID serwera: {0}.</value></data>
+  <data name="Settings_Applying" xml:space="preserve"><value>Stosowanie ustawień…</value></data>
+  <data name="Settings_Result_NoChange" xml:space="preserve"><value>Brak zmian.</value></data>
+  <data name="Settings_Result_SavedForNextStart" xml:space="preserve"><value>Zapisano. Ustawienia zadziałają przy starcie serwera.</value></data>
+  <data name="Settings_Result_AppliedAndRestarted" xml:space="preserve"><value>Zastosowano — serwer uruchomiono ponownie z nowymi ustawieniami.</value></data>
+  <data name="Settings_Result_AppliedStartFailed" xml:space="preserve"><value>Zastosowano, ale nie udało się ponownie uruchomić serwera: {0}</value></data>
+  <data name="Settings_Failed" xml:space="preserve"><value>Ustawień nie zastosowano: {0}</value></data>
+  <data name="Validation_MotdInvalid" xml:space="preserve"><value>MOTD: najwyżej 120 znaków, bez %, $, \ i znaków sterujących.</value></data>
+  <data name="Validation_ViewDistanceInvalid" xml:space="preserve"><value>Zasięg widzenia musi być od 2 do 32.</value></data>
+  <data name="Validation_SpawnProtectionInvalid" xml:space="preserve"><value>Ochrona spawnu musi być od 0 do 1000.</value></data>
+  <data name="Error_SettingsChangePending" xml:space="preserve"><value>Operacja na tym serwerze została przerwana. Najpierw dokończ ją przyciskiem „Napraw”.</value></data>
+  <data name="Error_SettingsAborted" xml:space="preserve"><value>Zmianę ustawień anulowano wymuszonym zatrzymaniem; nic nie zmieniono.</value></data>
+  <data name="Console_Placeholder" xml:space="preserve"><value>Wpisz komendę serwera, np. list albo say Cześć</value></data>
+  <data name="Console_Send" xml:space="preserve"><value>Wyślij</value></data>
+  <data name="Console_Clear" xml:space="preserve"><value>Wyczyść</value></data>
+  <data name="Console_Note" xml:space="preserve"><value>Komendy idą przez RCON i są trzymane tylko w pamięci. Ustawienia zmienione komendami Bonfire może przywrócić przy kolejnym starcie serwera.</value></data>
+  <data name="Console_StopRouted" xml:space="preserve"><value>Zatrzymywanie serwera przez Bonfire (łagodne zatrzymanie).</value></data>
+  <data name="Console_OutcomeUnknown" xml:space="preserve"><value>Brak odpowiedzi na czas. Komenda mogła się wykonać albo nie — nie zostanie powtórzona.</value></data>
+  <data name="Console_NoOutput" xml:space="preserve"><value>(brak odpowiedzi)</value></data>
+  <data name="Console_Truncated" xml:space="preserve"><value>… odpowiedź skrócona</value></data>
+  <data name="Console_ConnectionFailed" xml:space="preserve"><value>rcon-cli zakończył się błędem (kod {0}).</value></data>
+  <data name="Rcon_Empty" xml:space="preserve"><value>Wpisz komendę.</value></data>
+  <data name="Rcon_TooLong" xml:space="preserve"><value>Komenda jest za długa (maks. 1000 znaków).</value></data>
+  <data name="Rcon_InvalidCharacters" xml:space="preserve"><value>Komenda nie może zawierać znaków nowej linii ani znaków sterujących.</value></data>
+  <data name="Players_Count" xml:space="preserve"><value>Graczy online: {0} z {1}</value></data>
+  <data name="Players_Unknown" xml:space="preserve"><value>Liczba graczy nieznana</value></data>
+  <data name="Players_NamesUnavailable" xml:space="preserve"><value>Nie udało się odczytać nazw graczy z odpowiedzi serwera.</value></data>
+  <data name="Players_Refresh" xml:space="preserve"><value>Odśwież</value></data>
+  <data name="Error_NotRunning" xml:space="preserve"><value>Serwer nie działa.</value></data>
+  <data name="Error_CommandStillRunning" xml:space="preserve"><value>Poprzednia komenda wciąż działa na serwerze. Spróbuj za chwilę.</value></data>
+  <data name="Logs_Filter" xml:space="preserve"><value>Filtruj…</value></data>
+  <data name="Logs_Info" xml:space="preserve"><value>Info</value></data>
+  <data name="Logs_Warn" xml:space="preserve"><value>Ostrzeżenia</value></data>
+  <data name="Logs_Error" xml:space="preserve"><value>Błędy</value></data>
+  <data name="Logs_AutoScroll" xml:space="preserve"><value>Śledź nowe linie</value></data>
+  <data name="Logs_Clear" xml:space="preserve"><value>Wyczyść widok</value></data>
+  <data name="Logs_Unread" xml:space="preserve"><value>{0} nowych linii poniżej</value></data>
+  <data name="Logs_Dropped" xml:space="preserve"><value>Pominięto {0} linii, bo log przychodził zbyt szybko</value></data>
+  <data name="Logs_NoContainer" xml:space="preserve"><value>Serwer nie ma kontenera.</value></data>
+  <data name="Logs_NotRunning" xml:space="preserve"><value>Serwer nie działa.</value></data>
+  <data name="Logs_ErrorState" xml:space="preserve"><value>Nie udało się odczytać logu; ponawianie…</value></data>
+  <data name="Logs_StreamEnded" xml:space="preserve"><value>Strumień logów się zakończył; ponowne łączenie…</value></data>
+  <data name="Logs_NewContainer" xml:space="preserve"><value>— Kontener został odtworzony; wcześniejsze linie pochodzą ze starego kontenera —</value></data>
+  <data name="Info_ContainerId" xml:space="preserve"><value>Kontener</value></data>
+  <data name="Info_Image" xml:space="preserve"><value>Obraz</value></data>
+  <data name="Info_Created" xml:space="preserve"><value>Utworzony</value></data>
+  <data name="Info_Software" xml:space="preserve"><value>Oprogramowanie</value></data>
+  <data name="Info_Memory" xml:space="preserve"><value>Pamięć</value></data>
+  <data name="Info_MemoryValue" xml:space="preserve"><value>Sterta Javy {0}–{1} MB, limit kontenera {2} MB, bez swapu</value></data>
+  <data name="Info_Cpu" xml:space="preserve"><value>CPU</value></data>
+  <data name="Info_Address" xml:space="preserve"><value>Adres</value></data>
+  <data name="Info_RestartPolicy" xml:space="preserve"><value>Polityka restartu</value></data>
+  <data name="Info_DataDir" xml:space="preserve"><value>Katalog danych</value></data>
+  <data name="Info_OpenDataDir" xml:space="preserve"><value>Otwórz katalog danych</value></data>
+  <data name="Info_Security" xml:space="preserve"><value>Zabezpieczenia</value></data>
+  <data name="Info_SecurityValue" xml:space="preserve"><value>Profil v{0}: działa jako Twój użytkownik, system tylko do odczytu, bez dodatkowych uprawnień, bez swapu, osobna sieć, RCON niepublikowany</value></data>
+  <data name="Wizard_Title" xml:space="preserve"><value>Nowy serwer</value></data>
+  <data name="Wizard_Basics" xml:space="preserve"><value>Serwer</value></data>
+  <data name="Wizard_Name" xml:space="preserve"><value>Nazwa</value></data>
+  <data name="Wizard_Type" xml:space="preserve"><value>Typ</value></data>
+  <data name="Wizard_Version" xml:space="preserve"><value>Wersja Minecrafta</value></data>
+  <data name="Wizard_Resolving" xml:space="preserve"><value>Sprawdzanie wersji…</value></data>
+  <data name="Wizard_Resolved_Vanilla" xml:space="preserve"><value>Vanilla {0} · Java {1}</value></data>
+  <data name="Wizard_Resolved_Fabric" xml:space="preserve"><value>Fabric loader {0} · instalator {1} (najnowsze stabilne) · Java {2}</value></data>
+  <data name="Wizard_Resolved_Paper" xml:space="preserve"><value>Paper build {0} (najnowszy stabilny) · Java {1}</value></data>
+  <data name="Wizard_PaperUnsupported" xml:space="preserve"><value>Paper nie wspiera już tej wersji Minecrafta — nie dostaje poprawek.</value></data>
+  <data name="Wizard_FabricNoApi" xml:space="preserve"><value>Mod Fabric API nie jest instalowany automatycznie.</value></data>
+  <data name="Wizard_Refresh" xml:space="preserve"><value>Odśwież wersje</value></data>
+  <data name="Wizard_Resources" xml:space="preserve"><value>Zasoby</value></data>
+  <data name="Wizard_HeapMin" xml:space="preserve"><value>Minimalna pamięć (MB)</value></data>
+  <data name="Wizard_HeapMax" xml:space="preserve"><value>Maksymalna pamięć (MB)</value></data>
+  <data name="Wizard_Cpu" xml:space="preserve"><value>Limit CPU (rdzenie)</value></data>
+  <data name="Wizard_ContainerMemory" xml:space="preserve"><value>Kontener może użyć do {0} MB (sterta Javy plus narzut).</value></data>
+  <data name="Wizard_MemoryHigh" xml:space="preserve"><value>To więcej niż pamięć obecnie dostępna na tym komputerze ({0} MB).</value></data>
+  <data name="Wizard_Network" xml:space="preserve"><value>Sieć</value></data>
+  <data name="Wizard_Port" xml:space="preserve"><value>Port</value></data>
+  <data name="Wizard_ExposureLocal" xml:space="preserve"><value>Tylko ten komputer (127.0.0.1)</value></data>
+  <data name="Wizard_ExposureAll" xml:space="preserve"><value>Wszystkie interfejsy sieciowe (0.0.0.0)</value></data>
+  <data name="Wizard_ExposureAllWarning" xml:space="preserve"><value>Serwer będzie osiągalny w każdej sieci, do której podłączony jest ten komputer — także z internetu, jeśli router przekierowuje port.</value></data>
+  <data name="Port_Free" xml:space="preserve"><value>Port jest wolny.</value></data>
+  <data name="Port_UsedByBonfireServer" xml:space="preserve"><value>Ten port ma już inny serwer Bonfire.</value></data>
+  <data name="Port_UsedByContainer" xml:space="preserve"><value>Ten port zajmuje już kontener Dockera.</value></data>
+  <data name="Port_UsedByHost" xml:space="preserve"><value>Jakiś program na tym komputerze już nasłuchuje na tym porcie.</value></data>
+  <data name="Port_Unknown" xml:space="preserve"><value>Nie udało się sprawdzić portu; może być zajęty.</value></data>
+  <data name="Wizard_Game" xml:space="preserve"><value>Gra</value></data>
+  <data name="Wizard_OnlineMode" xml:space="preserve"><value>Tryb online (weryfikacja graczy przez Mojang)</value></data>
+  <data name="Wizard_OnlineModeWarning" xml:space="preserve"><value>Bez trybu online każdy może dołączyć pod dowolną nazwą gracza, także Twoją albo operatora.</value></data>
+  <data name="Wizard_Difficulty" xml:space="preserve"><value>Poziom trudności</value></data>
+  <data name="Wizard_MaxPlayers" xml:space="preserve"><value>Maksymalna liczba graczy</value></data>
+  <data name="Wizard_Whitelist" xml:space="preserve"><value>Whitelista (dołączyć mogą tylko wymienieni gracze)</value></data>
+  <data name="Wizard_WhitelistEntries" xml:space="preserve"><value>Nazwy graczy lub UUID, po jednym w wierszu</value></data>
+  <data name="Wizard_WhitelistEmpty" xml:space="preserve"><value>Whitelista jest pusta: nikt nie dołączy, dopóki nie dodasz graczy.</value></data>
+  <data name="Wizard_Seed" xml:space="preserve"><value>Ziarno świata (opcjonalne)</value></data>
+  <data name="Wizard_Advanced" xml:space="preserve"><value>Zaawansowane</value></data>
+  <data name="Wizard_RestartPolicy" xml:space="preserve"><value>Polityka restartu</value></data>
+  <data name="Restart_No" xml:space="preserve"><value>Nie restartuj automatycznie</value></data>
+  <data name="Restart_OnFailure" xml:space="preserve"><value>Restartuj po awarii (do 3 razy)</value></data>
+  <data name="Restart_UnlessStopped" xml:space="preserve"><value>Zawsze restartuj, chyba że go zatrzymasz</value></data>
+  <data name="Difficulty_Peaceful" xml:space="preserve"><value>Pokojowy</value></data>
+  <data name="Difficulty_Easy" xml:space="preserve"><value>Łatwy</value></data>
+  <data name="Difficulty_Normal" xml:space="preserve"><value>Normalny</value></data>
+  <data name="Difficulty_Hard" xml:space="preserve"><value>Trudny</value></data>
+  <data name="Wizard_StartAfter" xml:space="preserve"><value>Uruchom serwer po utworzeniu</value></data>
+  <data name="Wizard_Eula" xml:space="preserve"><value>Minecraft EULA</value></data>
+  <data name="Wizard_EulaAccept" xml:space="preserve"><value>Akceptuję umowę licencyjną użytkownika końcowego Minecraft (EULA)</value></data>
+  <data name="Wizard_EulaOpen" xml:space="preserve"><value>Przeczytaj EULA</value></data>
+  <data name="Wizard_Summary" xml:space="preserve"><value>Podsumowanie</value></data>
+  <data name="Wizard_Create" xml:space="preserve"><value>Utwórz serwer</value></data>
+  <data name="Wizard_Phase_Validating" xml:space="preserve"><value>Sprawdzanie…</value></data>
+  <data name="Wizard_Phase_PullingImage" xml:space="preserve"><value>Pobieranie obrazu serwera…</value></data>
+  <data name="Wizard_Phase_CreatingServer" xml:space="preserve"><value>Tworzenie serwera…</value></data>
+  <data name="Wizard_Phase_Starting" xml:space="preserve"><value>Uruchamianie serwera…</value></data>
+  <data name="Wizard_Phase_Done" xml:space="preserve"><value>Gotowe.</value></data>
+  <data name="Wizard_Cancelled_NothingCreated" xml:space="preserve"><value>Anulowano. Nie utworzono serwera.</value></data>
+  <data name="Wizard_Cancelled_Incomplete" xml:space="preserve"><value>Anulowano podczas tworzenia. Serwer jest na liście jako przerwana operacja — użyj „Napraw”, aby dokończyć.</value></data>
+  <data name="Wizard_CreatedNotStarted" xml:space="preserve"><value>Serwer został utworzony, ale nie udało się go uruchomić: {0}</value></data>
+  <data name="Wizard_Failed" xml:space="preserve"><value>Nie udało się utworzyć serwera: {0}</value></data>
+  <data name="Wizard_GoToServers" xml:space="preserve"><value>Przejdź do serwerów</value></data>
+  <data name="Wizard_CreatedStartUnknown" xml:space="preserve"><value>Serwer został utworzony. Uruchamianie anulowano — sprawdź jego stan na liście serwerów.</value></data>
+  <data name="Validation_Required" xml:space="preserve"><value>Uzupełnij wszystkie wymagane pola (pamięć, CPU, port, gracze).</value></data>
+  <data name="Metadata_ProviderUnavailable" xml:space="preserve"><value>Usługa wersji jest niedostępna. Sprawdź połączenie z internetem i spróbuj ponownie.</value></data>
+  <data name="Metadata_RateLimited" xml:space="preserve"><value>Usługa wersji poprosiła o spowolnienie. Spróbuj ponownie za chwilę.</value></data>
+  <data name="Metadata_InvalidResponse" xml:space="preserve"><value>Usługa wersji zwróciła nieoczekiwane dane.</value></data>
+  <data name="Metadata_Unsupported" xml:space="preserve"><value>Ten typ nie jest dostępny dla tej wersji Minecrafta: {0}</value></data>
+  <data name="Validation_NameEmpty" xml:space="preserve"><value>Podaj nazwę serwera.</value></data>
+  <data name="Validation_NameInvalid" xml:space="preserve"><value>Nazwa może mieć najwyżej 64 znaki, bez znaków sterujących i spacji na początku lub końcu.</value></data>
+  <data name="Validation_VersionInvalid" xml:space="preserve"><value>Wybierz wersję Minecrafta.</value></data>
+  <data name="Validation_LoaderMissing" xml:space="preserve"><value>Nie udało się ustalić wersji loadera.</value></data>
+  <data name="Validation_ImageInvalid" xml:space="preserve"><value>Brak odpowiedniego obrazu serwera.</value></data>
+  <data name="Validation_MemoryInvalid" xml:space="preserve"><value>Pamięć: minimum co najmniej 512 MB, maksimum najwyżej 65536 MB i nie mniej niż minimum.</value></data>
+  <data name="Validation_CpuInvalid" xml:space="preserve"><value>Limit CPU: od 0,5 do liczby rdzeni tego komputera.</value></data>
+  <data name="Validation_PortInvalid" xml:space="preserve"><value>Port: od 1024 do 65535.</value></data>
+  <data name="Validation_MaxPlayersInvalid" xml:space="preserve"><value>Maksymalna liczba graczy: od 1 do 1000.</value></data>
+  <data name="Validation_WhitelistInvalid" xml:space="preserve"><value>Wpisy whitelisty muszą być nazwami graczy (3–16 liter, cyfr, _) albo UUID.</value></data>
+  <data name="Validation_SeedInvalid" xml:space="preserve"><value>Ziarno może mieć najwyżej 64 znaki.</value></data>
+  <data name="Validation_EulaRequired" xml:space="preserve"><value>Zaakceptuj Minecraft EULA, aby utworzyć serwer.</value></data>
+  <data name="Servers_Empty" xml:space="preserve"><value>Nie ma jeszcze żadnych serwerów.</value></data>
+  <data name="Servers_Stale" xml:space="preserve"><value>Stan może być nieaktualny</value></data>
+  <data name="Server_Id" xml:space="preserve"><value>ID {0}</value></data>
+  <data name="Server_Uptime" xml:space="preserve"><value>działa od {0}</value></data>
+  <data name="Server_ExitCode" xml:space="preserve"><value>kod wyjścia {0}</value></data>
+  <data name="Server_OomKilled" xml:space="preserve"><value>zabity: brak pamięci</value></data>
+  <data name="Server_Action_Start" xml:space="preserve"><value>Uruchom</value></data>
+  <data name="Server_Action_Stop" xml:space="preserve"><value>Zatrzymaj</value></data>
+  <data name="Server_Action_Restart" xml:space="preserve"><value>Restartuj</value></data>
+  <data name="Server_Action_ForceStop" xml:space="preserve"><value>Wymuś zatrzymanie</value></data>
+  <data name="Server_Action_RemoveContainer" xml:space="preserve"><value>Usuń kontener</value></data>
+  <data name="Server_Action_Repair" xml:space="preserve"><value>Napraw</value></data>
+  <data name="Server_Stopping" xml:space="preserve"><value>Zatrzymywanie — zapisywanie świata…</value></data>
+  <data name="Server_StoppingLong" xml:space="preserve"><value>Serwer długo się zatrzymuje. Możesz poczekać albo wymusić zatrzymanie.</value></data>
+  <data name="Status_Unknown" xml:space="preserve"><value>Nieznany</value></data>
+  <data name="Status_Running" xml:space="preserve"><value>Działa</value></data>
+  <data name="Status_Starting" xml:space="preserve"><value>Uruchamianie</value></data>
+  <data name="Status_Unhealthy" xml:space="preserve"><value>Nie odpowiada</value></data>
+  <data name="Status_Restarting" xml:space="preserve"><value>Restartowanie</value></data>
+  <data name="Status_Paused" xml:space="preserve"><value>Wstrzymany</value></data>
+  <data name="Status_Removing" xml:space="preserve"><value>Usuwanie</value></data>
+  <data name="Status_Stopped" xml:space="preserve"><value>Zatrzymany</value></data>
+  <data name="Status_Created" xml:space="preserve"><value>Jeszcze nie uruchomiony</value></data>
+  <data name="Status_Dead" xml:space="preserve"><value>Uszkodzony kontener</value></data>
+  <data name="Status_ContainerRemoved" xml:space="preserve"><value>Kontener usunięty — dane zachowane</value></data>
+  <data name="Status_ContainerMissing" xml:space="preserve"><value>Brak kontenera</value></data>
+  <data name="Status_UnrecordedContainer" xml:space="preserve"><value>Wymaga naprawy</value></data>
+  <data name="Status_Incomplete" xml:space="preserve"><value>Przerwana operacja</value></data>
+  <data name="Status_DamagedRecord" xml:space="preserve"><value>Uszkodzony zapis serwera</value></data>
+  <data name="Status_Conflict" xml:space="preserve"><value>Konflikt — kilka kontenerów</value></data>
+  <data name="Status_Orphan" xml:space="preserve"><value>Nieznany kontener (bez zapisu)</value></data>
+  <data name="Confirm_ForceStop_Title" xml:space="preserve"><value>Wymusić zatrzymanie {0}?</value></data>
+  <data name="Confirm_ForceStop_Message" xml:space="preserve"><value>Serwer zostanie natychmiast zabity. Zmiany jeszcze niezapisane w świecie mogą zostać utracone. ID serwera: {0}.</value></data>
+  <data name="Confirm_Remove_Title" xml:space="preserve"><value>Usunąć kontener serwera {0}?</value></data>
+  <data name="Confirm_Remove_Message" xml:space="preserve"><value>Usunięty zostanie tylko kontener Dockera i jego sieć. Świat, konfiguracja, mody i kopie zapasowe zostają w {1}, a serwer można odtworzyć. ID serwera: {0}.</value></data>
+  <data name="Error_Busy" xml:space="preserve"><value>Trwa inna operacja na tym serwerze.</value></data>
+  <data name="Error_PortInUse" xml:space="preserve"><value>Port jest już zajęty przez inny program lub serwer.</value></data>
+  <data name="Error_HardeningMismatch" xml:space="preserve"><value>Konfiguracja kontenera nie zgadza się z oczekiwaną przez Bonfire — została zmieniona poza Bonfire albo wymaga odtworzenia po aktualizacji Bonfire — więc nie został uruchomiony. Użyj „Napraw”, aby go odtworzyć (świat i dane zostają).</value></data>
+  <data name="Error_ContainerMissing" xml:space="preserve"><value>Kontener serwera już nie istnieje.</value></data>
+  <data name="Error_Conflict" xml:space="preserve"><value>Zasoby Dockera tego serwera są w konflikcie.</value></data>
+  <data name="Error_StillRunning" xml:space="preserve"><value>Najpierw zatrzymaj serwer.</value></data>
+  <data name="Error_ImageUnavailable" xml:space="preserve"><value>Nie udało się pobrać obrazu serwera.</value></data>
+  <data name="Error_DockerUnsupported" xml:space="preserve"><value>Docker nie jest połączony albo brakuje mu wymaganych zabezpieczeń — nie można uruchamiać serwerów.</value></data>
+  <data name="Error_RecordUnavailable" xml:space="preserve"><value>Zapis serwera nie istnieje albo jest uszkodzony.</value></data>
+  <data name="Error_RestartAborted" xml:space="preserve"><value>Restart przerwano wymuszonym zatrzymaniem; serwer pozostaje zatrzymany.</value></data>
+  <data name="Error_Docker" xml:space="preserve"><value>Docker zgłosił błąd.</value></data>
+  <data name="Error_Unexpected" xml:space="preserve"><value>Wystąpił nieoczekiwany błąd.</value></data>
+  <data name="Docker_Heading" xml:space="preserve"><value>Docker Engine</value></data>
+  <data name="Docker_Checking" xml:space="preserve"><value>Sprawdzanie Dockera…</value></data>
+  <data name="Docker_Retry" xml:space="preserve"><value>Sprawdź ponownie</value></data>
+  <data name="Docker_LastChecked" xml:space="preserve"><value>Ostatnie sprawdzenie: {0}</value></data>
+  <data name="Docker_TechnicalDetails" xml:space="preserve"><value>Szczegóły techniczne</value></data>
+  <data name="Docker_Short_Connected" xml:space="preserve"><value>Docker {0}</value></data>
+  <data name="Docker_Short_Unavailable" xml:space="preserve"><value>Docker niedostępny</value></data>
+  <data name="Docker_Detail_Version" xml:space="preserve"><value>Wersja Dockera</value></data>
+  <data name="Docker_Detail_Api" xml:space="preserve"><value>Wersja API</value></data>
+  <data name="Docker_Detail_ApiValue" xml:space="preserve"><value>{0} (demon obsługuje {1}–{2})</value></data>
+  <data name="Docker_Detail_Endpoint" xml:space="preserve"><value>Socket</value></data>
+  <data name="Docker_Detail_System" xml:space="preserve"><value>System</value></data>
+  <data name="Docker_Detail_Seccomp" xml:space="preserve"><value>Seccomp</value></data>
+  <data name="Docker_Detail_SeccompOn" xml:space="preserve"><value>włączony, profil: {0}</value></data>
+  <data name="Docker_Detail_SeccompOff" xml:space="preserve"><value>niedostępny</value></data>
+  <data name="Docker_Detail_Cgroup" xml:space="preserve"><value>Cgroup</value></data>
+  <data name="Docker_Detail_CgroupValue" xml:space="preserve"><value>v{0}, sterownik: {1}</value></data>
+  <data name="Docker_Title_Connected" xml:space="preserve"><value>Połączono z Dockerem</value></data>
+  <data name="Docker_Message_Connected" xml:space="preserve"><value>Bonfire może komunikować się z lokalnym Docker Engine.</value></data>
+  <data name="Docker_Title_UnsupportedEndpoint" xml:space="preserve"><value>Nieobsługiwany adres Dockera</value></data>
+  <data name="Docker_Message_UnsupportedEndpoint" xml:space="preserve"><value>DOCKER_HOST wskazuje na coś innego niż lokalny socket Unix. Bonfire obsługuje tylko lokalny Docker Engine (unix:///…). Usuń zmienną DOCKER_HOST albo wskaż w niej lokalny socket.</value></data>
+  <data name="Docker_Title_SocketMissing" xml:space="preserve"><value>Docker nie działa</value></data>
+  <data name="Docker_Message_SocketMissing" xml:space="preserve"><value>Socket Dockera {0} nie istnieje. Zainstaluj Dockera i uruchom usługę: sudo rc-service docker start (start przy uruchamianiu systemu: sudo rc-update add docker default).</value></data>
+  <data name="Docker_Title_PermissionDenied" xml:space="preserve"><value>Brak dostępu do Dockera</value></data>
+  <data name="Docker_Message_PermissionDenied" xml:space="preserve"><value>System odmówił dostępu do {0}. Dostęp zwykle daje grupa docker — członkostwo w niej oznacza uprawnienia zbliżone do roota. Jeśli niedawno dodano Cię do grupy z dostępem do tego socketu, wyloguj się i zaloguj ponownie, a potem uruchom Bonfire jeszcze raz.</value></data>
+  <data name="Docker_Title_ApiAccessDenied" xml:space="preserve"><value>Docker odrzucił żądanie</value></data>
+  <data name="Docker_Message_ApiAccessDenied" xml:space="preserve"><value>Docker odpowiedział, ale odmówił dostępu (np. wtyczka autoryzacji). Sprawdź konfigurację demona.</value></data>
+  <data name="Docker_Title_DaemonNotResponding" xml:space="preserve"><value>Docker nie odpowiada</value></data>
+  <data name="Docker_Message_DaemonNotResponding" xml:space="preserve"><value>Socket {0} istnieje, ale demon Dockera nie odpowiada. Sprawdź usługę: rc-service docker status.</value></data>
+  <data name="Docker_Title_Timeout" xml:space="preserve"><value>Docker nie odpowiedział na czas</value></data>
+  <data name="Docker_Message_Timeout" xml:space="preserve"><value>Brak odpowiedzi z {0} w wyznaczonym czasie. Demon może być przeciążony albo zawieszony.</value></data>
+  <data name="Docker_Title_ApiIncompatible" xml:space="preserve"><value>Nieobsługiwana wersja Dockera</value></data>
+  <data name="Docker_Message_ApiIncompatible" xml:space="preserve"><value>Docker {0} obsługuje API {1}–{2}, a Bonfire {3}–{4}. Zaktualizuj Dockera albo Bonfire.</value></data>
+  <data name="Docker_Title_Failed" xml:space="preserve"><value>Nie można połączyć się z Dockerem</value></data>
+  <data name="Docker_Message_Failed" xml:space="preserve"><value>Wystąpił nieoczekiwany błąd podczas łączenia z {0}.</value></data>
+  <data name="Docker_Warn_Rootless" xml:space="preserve"><value>Demon działa w trybie rootless, którego Bonfire jeszcze nie obsługuje. Zarządzanie serwerami nie będzie dostępne.</value></data>
+  <data name="Docker_Warn_NoSeccomp" xml:space="preserve"><value>Demon nie obsługuje seccomp. Kontenery działałyby bez filtra wywołań systemowych, więc Bonfire nie utworzy serwerów.</value></data>
+  <data name="Docker_Warn_InfoUnknown" xml:space="preserve"><value>Nie udało się odczytać możliwości demona (opcje bezpieczeństwa, cgroups).</value></data>
+  <data name="About_Version" xml:space="preserve"><value>Wersja {0}</value></data>
+  <data name="About_Directories" xml:space="preserve"><value>Katalogi aplikacji</value></data>
+  <data name="About_Config" xml:space="preserve"><value>Konfiguracja</value></data>
+  <data name="About_Data" xml:space="preserve"><value>Dane</value></data>
+  <data name="About_Logs" xml:space="preserve"><value>Logi</value></data>
+  <data name="About_OpenLogDir" xml:space="preserve"><value>Otwórz katalog logów</value></data>
+  <data name="Error_OpenFolderFailed" xml:space="preserve"><value>Nie udało się otworzyć katalogu w menedżerze plików.</value></data>
+  <data name="Settings_Language" xml:space="preserve"><value>Język interfejsu</value></data>
+  <data name="Settings_LanguageHint" xml:space="preserve"><value>Język zmienia się od razu.</value></data>
+  <data name="Settings_Corrupt" xml:space="preserve"><value>Plik ustawień jest uszkodzony. Zmiany obowiązują tylko w tej sesji, dopóki nie zastąpisz pliku.</value></data>
+  <data name="Settings_NewerSchema" xml:space="preserve"><value>Plik ustawień został utworzony przez nowszą wersję Bonfire. Zmiany obowiązują tylko w tej sesji.</value></data>
+  <data name="Settings_Unreadable" xml:space="preserve"><value>Nie można odczytać pliku ustawień. Zmiany obowiązują tylko w tej sesji.</value></data>
+  <data name="Settings_ReplaceFile" xml:space="preserve"><value>Zastąp plik ustawień</value></data>
+  <data name="Settings_SaveFailed" xml:space="preserve"><value>Nie udało się zapisać ustawień. Zmiana obowiązuje tylko w tej sesji.</value></data>
+  <data name="Settings_Saved" xml:space="preserve"><value>Ustawienia zapisane.</value></data>
+  <data name="Startup_Details" xml:space="preserve"><value>Szczegóły techniczne</value></data>
+  <data name="Startup_DirsTitle" xml:space="preserve"><value>Nie można przygotować katalogów aplikacji</value></data>
+  <data name="Startup_DirsMessage" xml:space="preserve"><value>Bonfire nie może utworzyć ani użyć swoich katalogów.</value></data>
+  <data name="Startup_AlreadyRunningTitle" xml:space="preserve"><value>Bonfire już działa</value></data>
+  <data name="Startup_AlreadyRunningMessage" xml:space="preserve"><value>Inna instancja Bonfire jest już uruchomiona dla tego użytkownika. Przełącz się do otwartego okna.</value></data>
+  <data name="Startup_LockTitle" xml:space="preserve"><value>Nie można sprawdzić uruchomionej instancji</value></data>
+  <data name="Startup_LockMessage" xml:space="preserve"><value>Nie udało się sprawdzić, czy Bonfire już działa.</value></data>
+</root>

@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Bonfire.App.ViewModels"
+             xmlns:loc="using:Bonfire.App.Localization"
+        x:Class="Bonfire.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{Binding WindowTitle}"
+        Icon="avares://bonfire/Assets/bonfire.png"
+        Width="1280" Height="800"
+        MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+
+  <Grid ColumnDefinitions="232,*">
+    <Border Grid.Column="0"
+            Background="{StaticResource BfSidebarBrush}"
+            BorderBrush="{StaticResource BfBorderBrush}"
+            BorderThickness="0,0,1,0"
+            Padding="16,24">
+      <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Margin="8,0,8,24" Spacing="2">
+          <TextBlock Text="BONFIRE" FontSize="20" FontWeight="Bold"
+                     Foreground="{StaticResource BfEmberBrush}" LetterSpacing="3" />
+          <TextBlock Text="{Binding [App_Subtitle], Source={x:Static loc:Localizer.Instance}}" Classes="muted" FontSize="12" />
+        </StackPanel>
+        <!-- Docker connection indicator; same state as the Servers page. -->
+        <Border DockPanel.Dock="Bottom" Classes="card" Padding="12,10" Margin="0,16,0,0">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <Ellipse Width="9" Height="9" VerticalAlignment="Center"
+                     Classes="status"
+                     Classes.ok="{Binding Docker.IsConnected}"
+                     Classes.problem="{Binding Docker.IsProblem}"
+                     Classes.warning="{Binding Docker.HasWarnings}" />
+            <TextBlock Text="{Binding Docker.ShortText}" FontSize="13" VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+        <ListBox Classes="nav"
+                 ItemsSource="{Binding Pages}"
+                 SelectedItem="{Binding SelectedNavPage}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:PageViewModel">
+              <TextBlock Text="{Binding Title}" FontSize="15" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+  </Grid>
+</Window>

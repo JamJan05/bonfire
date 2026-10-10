@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Bonfire application icon. SPDX-License-Identifier: GPL-3.0-or-later -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="62%" r="50%">
+      <stop offset="0" stop-color="#ff9a3c" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="outer" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#c2321b"/>
+      <stop offset="0.55" stop-color="#ee6a1f"/>
+      <stop offset="1" stop-color="#ffb347"/>
+    </linearGradient>
+    <linearGradient id="inner" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#ff8c1a"/>
+      <stop offset="1" stop-color="#ffe7a3"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="52" fill="#1c1512"/>
+  <circle cx="128" cy="150" r="104" fill="url(#glow)"/>
+  <!-- logs -->
+  <rect x="44" y="176" width="168" height="26" rx="13" fill="#6b3f24" transform="rotate(-14 128 189)"/>
+  <rect x="44" y="176" width="168" height="26" rx="13" fill="#7f4b2b" transform="rotate(14 128 189)"/>
+  <circle cx="60" cy="207" r="7" fill="#b8835a"/>
+  <circle cx="196" cy="207" r="7" fill="#b8835a"/>
+  <!-- flames -->
+  <path d="M128 36 C150 74 186 92 180 140 C176 172 154 188 128 188 C102 188 80 172 76 140 C72 108 96 98 104 70 C112 92 118 100 124 104 C126 80 120 60 128 36 Z" fill="url(#outer)"/>
+  <path d="M128 96 C142 118 160 128 156 152 C153 172 142 182 128 182 C114 182 103 172 100 152 C98 134 112 126 116 110 C120 122 124 126 128 128 C130 116 126 108 128 96 Z" fill="url(#inner)"/>
+</svg>

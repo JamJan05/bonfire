@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:loc="using:Bonfire.App.Localization"
+        x:Class="Bonfire.App.Views.ConfirmDialog"
+        Width="520" SizeToContent="Height"
+        CanResize="False" ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="28" Spacing="18">
+    <TextBlock x:Name="TitleText" Classes="h2" TextWrapping="Wrap" />
+    <ScrollViewer MaxHeight="380">
+      <TextBlock x:Name="MessageText" TextWrapping="Wrap" />
+    </ScrollViewer>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+      <Button x:Name="CancelButton" IsDefault="True" IsCancel="True" Click="OnCancel"
+              Content="{Binding [Common_Cancel], Source={x:Static loc:Localizer.Instance}}" />
+      <Button x:Name="ConfirmButton" Click="OnConfirm" />
+    </StackPanel>
+  </StackPanel>
+</Window>

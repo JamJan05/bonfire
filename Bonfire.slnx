@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Bonfire.App/Bonfire.App.csproj" />
+    <Project Path="src/Bonfire.Core/Bonfire.Core.csproj" />
+    <Project Path="src/Bonfire.Infrastructure/Bonfire.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Bonfire.Tests/Bonfire.Tests.csproj" />
+  </Folder>
+</Solution>
