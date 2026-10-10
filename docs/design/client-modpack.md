@@ -30,6 +30,7 @@ side it runs.
 | v1 | **Open in launcher** — hand the `.mrpack` to a detected launcher's import | proposed |
 | v1 | **Server address in the pack** — optional `servers.dat` override | proposed |
 | v1 | **Connection info** and **exposure checklist** — see *Network exposure* | proposed |
+| v1 | **Port on a specific host address** (VPN on the host) — third `PortExposure` | proposed |
 | v2 | **Sync a Prism instance** — Bonfire maintains a dedicated client instance | later, Prism only |
 | — | Official Mojang launcher, packwiz/HTTP hosting, configs, resource packs, JAR bundles | out of scope |
 
@@ -223,15 +224,58 @@ not know:
   consulted before `ufw`/`firewalld` rules), so a host firewall rule does not close the port.
   SECURITY.md should say the same.
 
-IPv6: `0.0.0.0` publishes IPv4 only; depending on the Docker daemon's configuration the port may
-or may not also be reachable over IPv6. To be verified and documented before the panel claims
-anything about IPv6.
+IPv6 is the usual reason a home server is "suddenly public": there is no NAT, every device has
+a public address, and many home routers do not filter inbound IPv6. The game server listens on
+both protocols. Whether Docker publishes the port over IPv6 depends on the daemon
+(`ip6tables`, `userland-proxy`); this must be verified and then stated in the panel and in
+SECURITY.md, and the panel lists the host's IPv6 addresses as well, because those are the ones
+that tend to be public. A reachable server is found by address-space scanners within hours, so
+the checklist below is not optional advice for anything published beyond loopback.
+
+### Private play over the internet: VPN on the host, port bound to its address
+
+The recommended way to play with friends on different networks without exposing anything: an
+overlay VPN (Tailscale, ZeroTier, WireGuard) **on the host**, and the game port published only on
+the VPN address. No port forwarding, invisible to scanners, encrypted transport; friends install
+the VPN client, join the network and connect to the VPN address or name.
+
+A VPN **inside the container** is rejected: WireGuard and Tailscale need `NET_ADMIN` and
+`/dev/net/tun`, and the hardening profile grants no capabilities and no devices. A userspace
+networking Tailscale sidecar sharing the game container's network namespace would need neither,
+but it is a separate, larger piece of work — possible later, not here.
+
+Proposed change: a third `PortExposure`, **a specific host address**.
+
+- The wizard and the settings list the host's interfaces with their addresses; interfaces that
+  look like a VPN (`tailscale0`, `wg*`, `zt*`, addresses in `100.64.0.0/10`) are labelled.
+- The chosen address becomes the port binding's `HostIp`, so Docker's DNAT rule matches only
+  traffic addressed to it; traffic to the public or LAN address is not forwarded.
+  `HardeningVerifier` already compares the binding exactly and checks it before every start.
+- Starting is **refused while the address is not present** on any interface (VPN down), with a
+  message — never a silent fallback to `0.0.0.0`.
+- With the pack's `servers.dat` the entry can carry the VPN name or address, so friends who
+  import the pack see the server in their list immediately.
+- The user guide gets a recipe "Playing with friends over the internet" built on this mode.
+
+To verify during implementation (Docker specifics; not yet reviewed by the second reviewer):
+the address appearing after `dockerd` started, behaviour with and without `userland-proxy`,
+IPv6 (`ip6tables`), whether a specific-address binding survives a `firewalld` reload, and that
+the binding is genuinely unreachable through the public and LAN addresses.
+
+Public alternatives, documented as such and never called secure:
+
+- **Relay services** (playit.gg, e4mc, ngrok): a tunnel through a third party; the server is
+  public under a random address and the relay sees the traffic. Convenient for friends who will
+  not install a VPN; whitelist and online mode remain required.
+- **Port forwarding**: the server is public, bots appear in the logs, the home address is known
+  to everyone who connects. Checklist below.
 
 ### Checklist before exposing to the internet
 
 Shown when the user selects `0.0.0.0` (wizard and settings), advisory only, never blocking:
 
-- online mode on — with it off anyone can join under any name;
+- online mode on — with it off anyone can join under any name, including a whitelisted one, so
+  the whitelist protects nothing;
 - whitelist on and enforced;
 - backups made recently (the panel shows the date of the newest one).
 
@@ -248,6 +292,8 @@ so the list is never published more widely than the game port itself.
   HTTP allowlist, and it sends the user's public address and port to someone else.
 - **UPnP / automatic port forwarding**: opens the router without the user seeing it — the
   opposite of what this project's threat model allows.
+- **VPN inside the container**: needs capabilities and a TUN device the hardening profile does
+  not grant (see above).
 
 ## Review notes
 
