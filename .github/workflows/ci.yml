@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-test:
+    name: Build and test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      DOTNET_NOLOGO: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          global-json-file: global.json
+      # Locked restore needs the network (and runs the NuGet vulnerability audit); the tests do not:
+      # the opt-in Docker / network / real-server tests stay disabled here.
+      - run: dotnet restore --locked-mode
+      - run: dotnet build -c Release --no-restore
+      - run: dotnet test -c Release --no-build --results-directory test-results --report-xunit-trx
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7
+
+  checks:
+    name: Scripts, metadata, translations, workflows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Shell syntax
+        run: |
+          for f in install.sh packaging/appimage/AppRun; do sh -n "$f"; done
+          for f in packaging/*.sh packaging/*/*.sh; do bash -n "$f"; done
+      - name: ShellCheck
+        run: shellcheck -S warning install.sh packaging/appimage/AppRun packaging/*.sh packaging/*/*.sh
+      - name: Desktop entry and AppStream metadata
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq desktop-file-utils appstream >/dev/null
+          desktop-file-validate packaging/linux/io.github.jamjan05.Bonfire.desktop
+          appstreamcli validate --no-net packaging/linux/io.github.jamjan05.Bonfire.metainfo.xml
+      - name: Generated translations are up to date
+        run: |
+          python3 tools/gen-strings.py src/Bonfire.App/Localization
+          test -z "$(git status --porcelain)" || { git status --porcelain; echo "run tools/gen-strings.py and commit the result"; exit 1; }
+      - name: actionlint
+        run: |
+          curl -fsSLo actionlint.tar.gz https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  actionlint.tar.gz" | sha256sum -c -
+          tar -xzf actionlint.tar.gz actionlint
+          ./actionlint -color

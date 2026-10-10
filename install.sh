@@ -134,8 +134,9 @@ install_package() {
 install_gentoo() {
     URL="https://github.com/$REPO.git"
     say "Gentoo: Bonfire comes from the \"bonfire\" overlay ($URL) as games-util/bonfire-bin."
-    command -v eselect >/dev/null && eselect repository list >/dev/null 2>&1 \
-        || die "eselect-repository is needed: sudo emerge --ask app-eselect/eselect-repository dev-vcs/git"
+    if ! command -v eselect >/dev/null || ! eselect repository list >/dev/null 2>&1; then
+        die "eselect-repository is needed: sudo emerge --ask app-eselect/eselect-repository dev-vcs/git"
+    fi
     existing=$(eselect repository list -i 2>/dev/null | awk '$2 == "bonfire" { print }')
     if [ -n "$existing" ]; then
         printf '%s' "$existing" | grep -q "$URL" || die "a different repository named \"bonfire\" is already configured: $existing"
@@ -208,8 +209,8 @@ uninstall_appimage() {
     [ -f "$DESKTOP" ] && grep -q "^Exec=$BIN_LINK" "$DESKTOP" && rm -f "$DESKTOP"
     rm -f "$ICON"
     if [ "$removed" = 1 ]; then
-        say "Removed the Bonfire AppImage. Servers, backups and settings in ~/.local/share/bonfire,"
-        say "~/.config/bonfire and ~/.local/state/bonfire were kept."
+        say "Removed the Bonfire AppImage. Servers, backups and settings in $HOME/.local/share/bonfire,"
+        say "$HOME/.config/bonfire and $HOME/.local/state/bonfire were kept."
     else
         say "No AppImage installation by this script was found (packages are removed with the package manager)."
     fi

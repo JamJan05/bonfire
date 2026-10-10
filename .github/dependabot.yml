@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  # NuGet versions are locked on purpose; updates arrive as reviewed pull requests that must
+  # also update packages.lock.json (CI restores in locked mode) and pass CI.
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
