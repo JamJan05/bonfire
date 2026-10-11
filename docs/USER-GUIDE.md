@@ -71,6 +71,94 @@ Changes need a stopped server. Downloads come only from Modrinth and are verifie
 Files are identified only by their checksum, never by name. A file changed after installation
 loses its recorded identity.
 
+## Playing with friends over the internet
+
+A server published on `0.0.0.0` and forwarded on the router is public: address-space scanners
+find it within hours. The safer way is a private network on top of the internet: every member
+gets a private address, only members can reach it, and nothing else is exposed. Two free options:
+
+- **Tailscale** — fewest steps, works behind carrier-grade NAT: install it on the host and on
+  every friend's computer, share the host device with them, connect to its `100.x.y.z` address.
+- **WireGuard, self-hosted** — no account anywhere; your computer is the endpoint. It needs a
+  public address at home: if the router's WAN address starts with `100.64`–`100.127`, `10.` or
+  `192.168.`, your provider uses carrier-grade NAT and you cannot forward a port — use Tailscale.
+
+The WireGuard recipe below assumes Linux on the host. Friends on **Windows, macOS, Android or
+iOS** use the official WireGuard apps from <https://www.wireguard.com/install/>; it is the same
+protocol.
+
+### Host
+
+1. Install the tools (the kernel module is part of Linux since 5.6): Debian `wireguard`,
+   Fedora/Arch `wireguard-tools`, Gentoo `net-vpn/wireguard-tools`.
+2. Keys — the private key never leaves this computer:
+   ```sh
+   sudo mkdir -p /etc/wireguard && sudo chmod 700 /etc/wireguard
+   cd /etc/wireguard
+   sudo sh -c 'umask 077; wg genkey | tee host.key | wg pubkey > host.pub'
+   ```
+3. `/etc/wireguard/wg0.conf` (mode `600`), one `[Peer]` per friend:
+   ```ini
+   [Interface]
+   Address    = 10.8.0.1/24
+   ListenPort = 51820
+   PrivateKey = <contents of host.key>
+
+   [Peer]
+   # friend 1
+   PublicKey  = <friend 1's public key>
+   AllowedIPs = 10.8.0.2/32
+   ```
+   Deliberately no IP forwarding and no NAT: friends reach only this computer (`10.8.0.1`),
+   neither your home network nor the internet through you.
+4. Start it, one of: NetworkManager — `sudo nmcli connection import type wireguard file
+   /etc/wireguard/wg0.conf` (starts with the system; `nmcli connection up|down wg0`); or
+   `wg-quick` — systemd `systemctl enable --now wg-quick@wg0`, OpenRC
+   `ln -s /etc/init.d/wg-quick /etc/init.d/wg-quick.wg0 && rc-update add wg-quick.wg0 default
+   && rc-service wg-quick.wg0 start`. Check with `sudo wg show`.
+5. Host firewall, if you run one: allow incoming UDP 51820.
+6. Router: give the computer a fixed DHCP lease, forward **UDP 51820** to it — and nothing
+   else; the game port is not forwarded. A changing home address: a free dynamic DNS name
+   (many routers have a client built in).
+
+### Friend
+
+Either you generate the key pair and send the whole file over a private channel (the friend
+deletes it after importing), or — better — the friend generates the keys in their app (*Add
+empty tunnel* on Windows shows the public key) and sends you only the public key for the
+`[Peer]` entry. File for friend 1:
+
+```ini
+[Interface]
+PrivateKey = <friend 1's private key>
+Address    = 10.8.0.2/32
+
+[Peer]
+PublicKey           = <contents of host.pub>
+Endpoint            = your-name.duckdns.org:51820
+AllowedIPs          = 10.8.0.0/24
+PersistentKeepalive = 25
+```
+
+`AllowedIPs = 10.8.0.0/24` sends only traffic for your network through the tunnel; the friend's
+internet is unchanged. Windows: *Import tunnel(s) from file*, *Activate*. Phone: a QR code
+(`qrencode -t ansiutf8 < friend1.conf`). After editing `wg0.conf` on the host:
+`sudo wg syncconf wg0 <(sudo wg-quick strip wg0)` or restart the connection.
+
+In Minecraft the friend connects to `10.8.0.1` (and the server's port).
+
+Why the forwarded WireGuard port is unlike a forwarded game port: WireGuard answers only
+packets signed with a known key, so a scanner sees nothing; and removing a friend's key removes
+their access.
+
+### Bonfire today
+
+Bonfire does not yet publish the game port on one chosen address, so a server for VPN friends
+runs with `0.0.0.0`: reachable through the tunnel and in your home network, not from the internet
+as long as the game port is not forwarded and the router does not pass inbound IPv6. Keep the
+whitelist and online mode on. A mode that publishes the port only on the VPN address is planned
+([docs/design/client-modpack.md](design/client-modpack.md)).
+
 ## When something was interrupted
 
 Every multi-step change (settings, restore, add-ons) is recorded before it starts. If Bonfire, the

@@ -279,9 +279,9 @@ Proposed change: a third `PortExposure`, **a specific host address**.
   message — never a silent fallback to `0.0.0.0`.
 - With the pack's `servers.dat` the entry can carry the VPN name or address, so friends who
   import the pack see the server in their list immediately.
-- The user guide gets a recipe "Playing with friends over the internet" built on this mode:
-  one with Tailscale (fewest steps) and one with self-hosted WireGuard (no third party), each
-  ending with the pack's `servers.dat` carrying the VPN address.
+- The user guide's "Playing with friends over the internet" (already written for today's
+  `0.0.0.0` workaround) switches to this mode and ends with the pack's `servers.dat` carrying
+  the VPN address.
 
 To verify during implementation (Docker specifics; not yet reviewed by the second reviewer):
 the address appearing after `dockerd` started, behaviour with and without `userland-proxy`,
