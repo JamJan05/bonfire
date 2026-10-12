@@ -95,15 +95,16 @@ public sealed class HeadlessViewTests
             new SettingsPageViewModel(Localizer.Instance, settingsService),
             new AboutPageViewModel(Localizer.Instance, app, quiet, NullLogger<AboutPageViewModel>.Instance),
             navigator,
-            () => new NewServerViewModel(Localizer.Instance, new FixedMetadata(), creation, ports, quiet, navigator, time,
+            () => new NewServerViewModel(Localizer.Instance, new FixedMetadata(), creation, ports, FakeHostAddresses.Typical(), quiet, navigator, time,
                 NullLogger<NewServerViewModel>.Instance, () => null),
             item => new ServerDetailsViewModel(Localizer.Instance, item,
                 new ServerLogViewModel(item.ServerId, registry, runtime, Localizer.Instance, time, NullLogger.Instance),
                 new ServerConsoleViewModel(item.ServerId, operations, Localizer.Instance, NullLogger.Instance),
                 new ServerPlayersViewModel(item.ServerId, operations, Localizer.Instance, time),
-                new ServerSettingsViewModel(item.ServerId, registry, operations, quiet, Localizer.Instance, NullLogger.Instance),
+                TestDetails.Settings(item.ServerId, registry, operations, quiet),
                 TestDetails.Backups(item.ServerId, registry, runtime, operations, quiet, quiet),
                 TestDetails.Content(item.ServerId, registry, runtime, operations),
+                TestDetails.Connection(),
                 registry, quiet, navigator));
 
         var record = ServerRecord.New(ServerTestData.Vanilla()) with { Phase = ProvisioningPhase.Ready, ContainerId = "c1", NetworkId = "n1" };
@@ -214,9 +215,10 @@ public sealed class HeadlessViewTests
             new ServerLogViewModel(item.ServerId, registry, runtime, Localizer.Instance, time, NullLogger.Instance),
             new ServerConsoleViewModel(item.ServerId, operations, Localizer.Instance, NullLogger.Instance),
             new ServerPlayersViewModel(item.ServerId, operations, Localizer.Instance, time),
-            new ServerSettingsViewModel(item.ServerId, registry, operations, quiet, Localizer.Instance, NullLogger.Instance),
+            TestDetails.Settings(item.ServerId, registry, operations, quiet),
             TestDetails.Backups(item.ServerId, registry, runtime, operations, quiet, quiet),
             TestDetails.Content(item.ServerId, registry, runtime, operations, modrinth),
+            TestDetails.Connection(),
             registry, quiet, new Navigator());
 
         var window = new Window { Width = 1400, Height = 900, Content = new ServerDetailsView { DataContext = page } };

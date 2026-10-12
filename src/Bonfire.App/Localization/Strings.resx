@@ -283,6 +283,52 @@ File: {2} ({3})</value></data>
   <data name="Wizard_ExposureLocal" xml:space="preserve"><value>This computer only (127.0.0.1)</value></data>
   <data name="Wizard_ExposureAll" xml:space="preserve"><value>All network interfaces (0.0.0.0)</value></data>
   <data name="Wizard_ExposureAllWarning" xml:space="preserve"><value>The server will be reachable on every network this computer is connected to — possibly including the internet if a router forwards the port.</value></data>
+  <data name="Wizard_ExposureAddress" xml:space="preserve"><value>One address of this computer (VPN)</value></data>
+  <data name="Wizard_ExposureAddressHint" xml:space="preserve"><value>Docker forwards only connections addressed to this address — for example a VPN interface's (Tailscale, WireGuard). While the address is absent (VPN down) Bonfire refuses to start the server; it never falls back to 0.0.0.0.</value></data>
+  <data name="Exposure_Address" xml:space="preserve"><value>{0} — {1}</value></data>
+  <data name="Exposure_AddressVpn" xml:space="preserve"><value>{0} — {1} (looks like a VPN)</value></data>
+  <data name="Exposure_AddressAbsent" xml:space="preserve"><value>{0} — not on any interface right now</value></data>
+  <data name="Exposure_NoAddresses" xml:space="preserve"><value>No suitable address: no VPN or LAN interface with an address was found.</value></data>
+  <data name="Exposure_AddressesUnavailable" xml:space="preserve"><value>The computer's network interfaces could not be read.</value></data>
+  <data name="Exposure_Refresh" xml:space="preserve"><value>Refresh addresses</value></data>
+  <data name="Exposure_RestartLocked" xml:space="preserve"><value>With one address the server is never restarted automatically: a restart before the VPN is up would leave the port unpublished.</value></data>
+  <data name="Checklist_Title" xml:space="preserve"><value>Before exposing the server to the internet</value></data>
+  <data name="Checklist_Intro" xml:space="preserve"><value>Advisory only — nothing here blocks saving:</value></data>
+  <data name="Checklist_OnlineMode" xml:space="preserve"><value>Online mode on (without it anyone joins under any name and the whitelist protects nothing)</value></data>
+  <data name="Checklist_Whitelist" xml:space="preserve"><value>Whitelist on</value></data>
+  <data name="Checklist_EnforceWhitelist" xml:space="preserve"><value>Whitelist enforced (players removed from it are kicked)</value></data>
+  <data name="Checklist_BackupNewServer" xml:space="preserve"><value>A backup — none yet, the server is new</value></data>
+  <data name="Checklist_BackupNone" xml:space="preserve"><value>A backup — none made yet</value></data>
+  <data name="Checklist_BackupNewest" xml:space="preserve"><value>A backup — newest: {0}</value></data>
+  <data name="Checklist_BackupUnreadable" xml:space="preserve"><value>A backup — the list could not be read</value></data>
+  <data name="Settings_Network" xml:space="preserve"><value>Network</value></data>
+  <data name="Settings_NetworkNote" xml:space="preserve"><value>Changing the port, the address or the restart policy recreates the container (world and data stay).</value></data>
+  <data name="Validation_ExposureInvalid" xml:space="preserve"><value>The network exposure mode is not valid.</value></data>
+  <data name="Validation_HostAddressInvalid" xml:space="preserve"><value>Choose an address of this computer for the port (IPv4 or IPv6; not loopback, link-local or a wildcard).</value></data>
+  <data name="Validation_SpecificAddressRestartPolicy" xml:space="preserve"><value>A server on one address cannot restart automatically: choose "Do not restart automatically".</value></data>
+  <data name="Validation_RestartPolicyInvalid" xml:space="preserve"><value>The restart policy is not valid.</value></data>
+  <data name="Error_AddressNotPresent" xml:space="preserve"><value>The server's address is not assigned to any network interface right now (is the VPN up?). The server was not started.</value></data>
+  <data name="Error_AddressCheckFailed" xml:space="preserve"><value>The computer's network interfaces could not be checked, so the server was not started.</value></data>
+  <data name="Error_PortNotPublished" xml:space="preserve"><value>Docker started the container without publishing the game port, so Bonfire stopped it again. This can happen after a start that failed to bind the address. Use "Remove container" and then "Repair" to recreate it — world and data stay, the container's log is lost.</value></data>
+  <data name="Error_ContainmentFailed" xml:space="preserve"><value>Docker started the container without publishing the game port correctly, and Bonfire could not confirm that it is stopped: the server may still be running or restart on its own. Stop it (or force-stop it), then use "Remove container" and "Repair" to recreate it.</value></data>
+  <data name="Connection_Title" xml:space="preserve"><value>Connection</value></data>
+  <data name="Connection_Intro" xml:space="preserve"><value>Players connect to:</value></data>
+  <data name="Connection_ThisComputer" xml:space="preserve"><value>this computer</value></data>
+  <data name="Connection_Interface" xml:space="preserve"><value>on {0}</value></data>
+  <data name="Connection_InterfaceVpn" xml:space="preserve"><value>on {0} (looks like a VPN)</value></data>
+  <data name="Connection_NotPublishedIpv6" xml:space="preserve"><value>IPv6 on {0} — IPv4-only publication was observed on Docker 29.8; a daemon that also binds [::] would expose this address</value></data>
+  <data name="Connection_AddressAbsent" xml:space="preserve"><value>not on any interface right now — the server cannot start</value></data>
+  <data name="Connection_Copy" xml:space="preserve"><value>Copy</value></data>
+  <data name="Connection_Copied" xml:space="preserve"><value>Copied {0}.</value></data>
+  <data name="Connection_CopyFailed" xml:space="preserve"><value>Could not copy {0} to the clipboard.</value></data>
+  <data name="Connection_LocalhostNote" xml:space="preserve"><value>Only programs on this computer can connect. Choose another mode in Settings to let other computers in.</value></data>
+  <data name="Connection_AllNote_Lan" xml:space="preserve"><value>Computers in the same network use one of the addresses above.</value></data>
+  <data name="Connection_AllNote_Internet" xml:space="preserve"><value>From the internet the server is reachable only if the router forwards the port to this computer (direct IPv4). Behind carrier-grade NAT (router WAN address in 100.64.0.0/10) that is not possible — use a VPN or a relay. A forwarded server is public: keep online mode and the whitelist on.</value></data>
+  <data name="Connection_AllNote_Firewall" xml:space="preserve"><value>Ports published by Docker may bypass ordinary host firewall rules (Docker's own chains are consulted first). Do not assume a ufw or firewalld rule closes this port.</value></data>
+  <data name="Connection_AllNote_Ipv6" xml:space="preserve"><value>The port is bound to 0.0.0.0. On this project's Docker 29.8 setup that published IPv4 only; whether a daemon also publishes it on [::] (IPv6) depends on the daemon, and Bonfire tolerates that twin binding.</value></data>
+  <data name="Connection_SpecificNote" xml:space="preserve"><value>Docker forwards only connections addressed to this address; the computer's other addresses do not reach the server. Who can reach this address depends on the network it belongs to.</value></data>
+  <data name="Connection_SpecificNoteVpn" xml:space="preserve"><value>Docker forwards only connections addressed to this address. Friends connect through the same VPN; this computer's LAN and public addresses do not reach the server.</value></data>
+  <data name="Connection_SpecificAbsentNote" xml:space="preserve"><value>Bonfire refuses to start the server while the address is absent and never falls back to another address.</value></data>
   <data name="Port_Free" xml:space="preserve"><value>Port is free.</value></data>
   <data name="Port_UsedByBonfireServer" xml:space="preserve"><value>Another Bonfire server uses this port.</value></data>
   <data name="Port_UsedByContainer" xml:space="preserve"><value>A Docker container already uses this port.</value></data>

@@ -35,6 +35,28 @@ internal static class TestDetails
         return new ServerContentViewModel(serverId, content, new Confirm(true), new NoPicker(), Localizer.Instance, NullLogger.Instance);
     }
 
+    public static ServerSettingsViewModel Settings(
+        Guid serverId, ServerRegistry registry, ServerOperationsService operations, IDialogService dialogs,
+        IHostAddresses? hosts = null, IPortAvailability? ports = null, Func<IReadOnlyList<Bonfire.Core.Backups.BackupInfo>>? backups = null) =>
+        new(serverId, registry, operations, dialogs, hosts ?? FakeHostAddresses.Typical(), ports ?? new ServerCreationTests.FixedPorts(),
+            backups ?? (() => []), Localizer.Instance, NullLogger.Instance);
+
+    public static ConnectionInfoViewModel Connection(IHostAddresses? hosts = null, FakeClipboard? clipboard = null) =>
+        new(Localizer.Instance, hosts ?? FakeHostAddresses.Typical(), clipboard ?? new FakeClipboard(), NullLogger.Instance);
+
+    internal sealed class FakeClipboard : IClipboardService
+    {
+        public List<string> Texts { get; } = [];
+
+        public bool Fail { get; set; }
+
+        public Task<bool> SetTextAsync(string text)
+        {
+            Texts.Add(text);
+            return Task.FromResult(!Fail);
+        }
+    }
+
     internal sealed class Confirm(bool yes) : IDialogService
     {
         public List<string> Messages { get; } = [];

@@ -16,6 +16,8 @@ findings are summarised per area below.
 | 6 | Modrinth, local JARs, transactional add-on changes | done |
 | 7 | Dependency resolver, updates, pinning, history and undo, complete backups | done |
 | 8 | Release payload, packages (deb, rpm, Arch, Gentoo, AppImage), documentation | done |
+| 9 | Network exposure: port on one host address (VPN), start guard, connection panel, checklist ([design](design/client-modpack.md), stage A) | done |
+| 10 | Client modpack export, launcher hand-off, server address in the pack (stages B–D) | planned |
 
 ## Architecture
 
@@ -55,21 +57,34 @@ packages as a build error, warnings as errors.
 | The bundled Inter font is the default UI font | A system without fonts crashed Avalonia (found by the Arch package test). |
 | Self-contained, reproducible release payload; distro packages repackage it | One tested artifact; identical input → identical archive. |
 | English UI by default, Polish available; localization via `.resx` generated from `tools/gen-strings.py` | One source of truth for both languages; tests check keys and placeholders match. |
+| Three exposure modes: `127.0.0.1`, `0.0.0.0` (IPv4 only) or one host address (`HostAddress`, canonical literal, record schema 5); `HostIp()` is exhaustive | A VPN address makes the server private without port forwarding; an unknown mode can never become a wildcard. Details and verified Docker facts in [design/client-modpack.md](design/client-modpack.md). |
+| A specific-address server starts only while the address is assigned (checked afresh in the service and in the runtime); automatic restarts refused in that mode | Never a silent fallback to another address. A daemon restart before the VPN is up would fail the bind, after which Docker 29.8 runs the container with nothing published. |
+| After every start the effective publication (`NetworkSettings.Ports`) must equal the requested binding, else the container is contained (policy off, kill) and `PortNotPublished` reported | Reproduced on Docker 29.8: once a start failed to bind the address, later starts publish nothing while the configuration still shows the binding. Recreating the container is left to the user (Remove container → Repair). |
+| Settings change the binding through the same transactional replacement as game settings; the port check ignores only the server's own record and container | A false conflict with its own listener would block every move of the port; ignoring every matching binding would hide real ones. |
+| Connection panel and checklist are advisory and read-only | Addresses come from the host's interfaces at that moment; the checklist (online mode, whitelist, backup) never blocks saving. |
 
 ## Verification
 
-- **Unit and integration tests** (`dotnet test`, no Docker or network): ~520 tests covering the
+- **Unit and integration tests** (`dotnet test`, no Docker or network): ~640 tests covering the
   model, validation, container spec and verifier, Docker error classification, registry and file
   safety, metadata parsing and limits, log assembly and redaction, RCON, settings, backups
   (round trip, corruption, crash points, format 1 and 2), the add-on engine (resolver, transactions
   with failure injection at each step, crash recovery, journal validation, symlink attacks, updates,
-  pins, history and undo), and view models.
+  pins, history and undo), network exposure (address canonical form and bindability, suggestions
+  and VPN hints, start guard incl. enumeration failure and force stop during the check, settings
+  patch and port-check scope, effective-publication verifier, record schema pre-check), and view models.
 - **Headless UI tests** with real mouse clicks: opening server details (a past crash), every tab
-  rendering, the add-ons tab flow search → install → check updates → update → pin → undo.
+  rendering, the add-ons tab flow search → install → check updates → update → pin → undo, the
+  connection panel's Copy button (IPv6 in brackets), the settings network card (mode switch by
+  clicking, checklist, save) and the wizard's address mode.
 - **Real Docker tests** (`BONFIRE_DOCKER_LIFECYCLE_TESTS=1`): full lifecycle for Vanilla, Fabric
   and Paper with the hardened profile; creation from live metadata; settings change and whitelist
   semantics; backup and restore on a running world; mods from Modrinth on a Fabric server (Chunky +
-  automatically added Fabric API + Lithium load; dependency protection; disable/remove; restart).
+  automatically added Fabric API + Lithium load; dependency protection; disable/remove; restart);
+  a server published on the host's LAN address only (reachable there, refused on loopback,
+  effective binding read back) and the refusal to start on an address nobody has. The VPN-down
+  sequence (address added after `dockerd` started, removed while running, failed start, address
+  back) needs root and was run by hand; the results are in the design document.
 - **Real network tests** (`BONFIRE_NETWORK_TESTS=1`): Mojang, Fabric, Paper and Modrinth through the
   production client, including a verified download.
 - **Packages** (`TEST=1 packaging/build-all.sh`): install → GUI smoke test as an unprivileged user →
@@ -94,6 +109,25 @@ packages as a build error, warnings as errors.
 - **Packaging:** license texts and copyright notices, the runtime version taken from the cache
   instead of the build, smoke tests checking only view-model state, Debian 12's too old Docker,
   the AppImage's higher glibc baseline.
+- **Network exposure (stage 9):** post-start inspection could escape containment on cancellation
+  or a transport error (now its own bounded time, every failure contains); the kill was skipped
+  when disabling the restart policy failed (now attempted regardless, both failures reported);
+  the wizard lost a vanished address through the ComboBox's two-way binding (now kept as an
+  "absent" item, like the settings editor); an enumeration failure in the settings editor dropped
+  the saved address from the patch; an incomplete pending definition reached the validator and
+  would have broken loading of every server; `\d` in the IPv4 regex accepted non-ASCII digits that
+  `IPAddress.Parse` then threw on; the "friends connect through the VPN" note was shown for any
+  specific address; overlapping panel loads could publish stale rows. Second round: a start whose
+  Docker answer was lost (cancellation, transport error) skipped the publication check — now an
+  inspection with its own time decides, and only a confirmed "not running" skips it; "stopped it
+  again" was claimed even when the kill failed — now a separate `ContainmentFailed` error that says
+  the server may still run; a force-stop test fired before the enumeration it meant to interleave
+  with, and a "verifier" test never called the verifier. Disagreements: the reviewer
+  wanted Repair to recreate a container whose start published nothing — declined, because Repair
+  cannot tell from a stopped container that its next start is broken and must not replace every
+  valid stopped container; the explicit two-step stays. The reviewer's claim that an explicit
+  `0.0.0.0` binding is IPv4-only was confirmed empirically against Docker's own docs, which say
+  the opposite.
 
 ## Known limitations
 

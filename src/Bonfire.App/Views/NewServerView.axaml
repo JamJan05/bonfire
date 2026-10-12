@@ -15,12 +15,34 @@
       <Setter Property="Foreground" Value="{StaticResource BfWarningBrush}" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
+    <!-- Fields of a fixed width wrap to the next row instead of squeezing their labels. -->
+    <Style Selector="WrapPanel.fields > StackPanel">
+      <Setter Property="Width" Value="200" />
+      <Setter Property="Margin" Value="0,0,16,8" />
+    </Style>
+    <Style Selector="Border#summary">
+      <Setter Property="Width" Value="340" />
+      <Setter Property="Padding" Value="20,32" />
+    </Style>
+    <Style Selector="StackPanel#form">
+      <Setter Property="Margin" Value="40,32,24,32" />
+    </Style>
+    <!-- Half a screen: a narrower summary and tighter margins leave the form room to wrap. -->
+    <ContainerQuery Name="wizard" Query="max-width:900">
+      <Style Selector="Border#summary">
+        <Setter Property="Width" Value="250" />
+        <Setter Property="Padding" Value="14,24" />
+      </Style>
+      <Style Selector="StackPanel#form">
+        <Setter Property="Margin" Value="20,24,16,24" />
+      </Style>
+    </ContainerQuery>
   </UserControl.Styles>
 
-  <Grid ColumnDefinitions="*,340">
+  <Grid ColumnDefinitions="*,Auto" Container.Name="wizard" Container.Sizing="Width">
     <!-- Form -->
-    <ScrollViewer Grid.Column="0">
-      <StackPanel Margin="40,32,24,32" Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
+    <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel x:Name="form" Spacing="16" MaxWidth="760" HorizontalAlignment="Left">
         <DockPanel>
           <Button DockPanel.Dock="Left" Margin="0,0,16,0"
                   Content="{Binding [Common_Back], Source={x:Static loc:Localizer.Instance}}" Command="{Binding BackCommand}" />
@@ -32,12 +54,12 @@
             <TextBlock Classes="h2" Text="{Binding [Wizard_Basics], Source={x:Static loc:Localizer.Instance}}" />
             <TextBlock Classes="label" Text="{Binding [Wizard_Name], Source={x:Static loc:Localizer.Instance}}" />
             <TextBox Text="{Binding DisplayName}" MaxLength="64" />
-            <Grid ColumnDefinitions="*,16,*">
+            <WrapPanel Classes="fields">
               <StackPanel>
                 <TextBlock Classes="label" Text="{Binding [Wizard_Type], Source={x:Static loc:Localizer.Instance}}" />
                 <ComboBox ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType}" HorizontalAlignment="Stretch" />
               </StackPanel>
-              <StackPanel Grid.Column="2">
+              <StackPanel>
                 <TextBlock Classes="label" Text="{Binding [Wizard_Version], Source={x:Static loc:Localizer.Instance}}" />
                 <DockPanel>
                   <Button DockPanel.Dock="Right" Margin="8,0,0,0" Content="⟳"
@@ -52,7 +74,7 @@
                   </ComboBox>
                 </DockPanel>
               </StackPanel>
-            </Grid>
+            </WrapPanel>
             <TextBlock Classes="muted" Margin="0,8,0,0" IsVisible="{Binding IsResolving}"
                        Text="{Binding [Wizard_Resolving], Source={x:Static loc:Localizer.Instance}}" />
             <TextBlock Margin="0,8,0,0" Text="{Binding ResolvedText}" TextWrapping="Wrap" />
@@ -67,20 +89,20 @@
         <Border Classes="card">
           <StackPanel Spacing="4">
             <TextBlock Classes="h2" Text="{Binding [Wizard_Resources], Source={x:Static loc:Localizer.Instance}}" />
-            <Grid ColumnDefinitions="*,16,*,16,*">
+            <WrapPanel Classes="fields">
               <StackPanel>
-                <TextBlock Classes="label" Text="{Binding [Wizard_HeapMin], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBlock Classes="label" TextWrapping="Wrap" Text="{Binding [Wizard_HeapMin], Source={x:Static loc:Localizer.Instance}}" />
                 <NumericUpDown Value="{Binding HeapMinMb}" Minimum="512" Maximum="65536" Increment="256" FormatString="0" />
               </StackPanel>
-              <StackPanel Grid.Column="2">
-                <TextBlock Classes="label" Text="{Binding [Wizard_HeapMax], Source={x:Static loc:Localizer.Instance}}" />
+              <StackPanel>
+                <TextBlock Classes="label" TextWrapping="Wrap" Text="{Binding [Wizard_HeapMax], Source={x:Static loc:Localizer.Instance}}" />
                 <NumericUpDown Value="{Binding HeapMaxMb}" Minimum="512" Maximum="65536" Increment="256" FormatString="0" />
               </StackPanel>
-              <StackPanel Grid.Column="4">
-                <TextBlock Classes="label" Text="{Binding [Wizard_Cpu], Source={x:Static loc:Localizer.Instance}}" />
+              <StackPanel>
+                <TextBlock Classes="label" TextWrapping="Wrap" Text="{Binding [Wizard_Cpu], Source={x:Static loc:Localizer.Instance}}" />
                 <NumericUpDown Value="{Binding CpuLimit}" Minimum="0.5" Maximum="{Binding MaxCpu}" Increment="0.5" FormatString="0.0" />
               </StackPanel>
-            </Grid>
+            </WrapPanel>
             <TextBlock Classes="muted" Margin="0,8,0,0" Text="{Binding ContainerMemoryText}" TextWrapping="Wrap" />
             <TextBlock Classes="warn" Text="{Binding MemoryWarning}" />
           </StackPanel>
@@ -90,17 +112,47 @@
           <StackPanel Spacing="4">
             <TextBlock Classes="h2" Text="{Binding [Wizard_Network], Source={x:Static loc:Localizer.Instance}}" />
             <TextBlock Classes="label" Text="{Binding [Wizard_Port], Source={x:Static loc:Localizer.Instance}}" />
-            <StackPanel Orientation="Horizontal" Spacing="12">
-              <NumericUpDown Value="{Binding Port}" Minimum="1024" Maximum="65535" FormatString="0" Width="160" />
-              <TextBlock VerticalAlignment="Center" Text="{Binding PortStatus}"
-                         Classes.warn="{Binding PortProblem}" Classes.muted="{Binding !PortProblem}" />
-            </StackPanel>
-            <RadioButton Margin="0,8,0,0" IsChecked="{Binding !ExposeOnAllInterfaces}"
+            <NumericUpDown Value="{Binding Port}" Minimum="1024" Maximum="65535" FormatString="0" Width="160" HorizontalAlignment="Left" />
+            <TextBlock Text="{Binding PortStatus}" TextWrapping="Wrap"
+                       Classes.warn="{Binding PortProblem}" Classes.muted="{Binding !PortProblem}" />
+            <RadioButton Margin="0,8,0,0" GroupName="exposure" IsChecked="{Binding IsLocalhost}"
                          Content="{Binding [Wizard_ExposureLocal], Source={x:Static loc:Localizer.Instance}}" />
-            <RadioButton IsChecked="{Binding ExposeOnAllInterfaces}"
+            <RadioButton GroupName="exposure" IsChecked="{Binding IsAllInterfaces}"
                          Content="{Binding [Wizard_ExposureAll], Source={x:Static loc:Localizer.Instance}}" />
-            <TextBlock Classes="warn" IsVisible="{Binding ExposeOnAllInterfaces}"
+            <TextBlock Classes="warn" IsVisible="{Binding IsAllInterfaces}"
                        Text="{Binding [Wizard_ExposureAllWarning], Source={x:Static loc:Localizer.Instance}}" />
+            <StackPanel IsVisible="{Binding ShowChecklist}" Spacing="2" Margin="0,4,0,0">
+              <TextBlock Classes="muted" Text="{Binding [Checklist_Intro], Source={x:Static loc:Localizer.Instance}}" />
+              <ItemsControl ItemsSource="{Binding Checklist}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:ChecklistItem">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <TextBlock Text="{Binding Mark}" Width="16" Margin="0,0,8,0" />
+                      <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" />
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+            <RadioButton GroupName="exposure" IsChecked="{Binding IsSpecificAddress}"
+                         Content="{Binding [Wizard_ExposureAddress], Source={x:Static loc:Localizer.Instance}}" />
+            <StackPanel IsVisible="{Binding IsSpecificAddress}" Spacing="4" Margin="0,4,0,0">
+              <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Wizard_ExposureAddressHint], Source={x:Static loc:Localizer.Instance}}" />
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Margin="8,0,0,0" Content="⟳"
+                        ToolTip.Tip="{Binding [Exposure_Refresh], Source={x:Static loc:Localizer.Instance}}"
+                        Command="{Binding RefreshAddressesCommand}" />
+                <ComboBox ItemsSource="{Binding Addresses}" SelectedItem="{Binding SelectedAddress}" HorizontalAlignment="Stretch">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IChoice">
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </DockPanel>
+              <TextBlock Classes="warn" Text="{Binding AddressesNote}" />
+              <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Exposure_RestartLocked], Source={x:Static loc:Localizer.Instance}}" />
+            </StackPanel>
           </StackPanel>
         </Border>
 
@@ -111,7 +163,7 @@
                       Content="{Binding [Wizard_OnlineMode], Source={x:Static loc:Localizer.Instance}}" />
             <TextBlock Classes="warn" IsVisible="{Binding !OnlineMode}"
                        Text="{Binding [Wizard_OnlineModeWarning], Source={x:Static loc:Localizer.Instance}}" />
-            <Grid ColumnDefinitions="*,16,*">
+            <WrapPanel Classes="fields">
               <StackPanel>
                 <TextBlock Classes="label" Text="{Binding [Wizard_Difficulty], Source={x:Static loc:Localizer.Instance}}" />
                 <ComboBox ItemsSource="{Binding Difficulties}" SelectedItem="{Binding SelectedDifficulty}" HorizontalAlignment="Stretch">
@@ -122,11 +174,11 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
               </StackPanel>
-              <StackPanel Grid.Column="2">
-                <TextBlock Classes="label" Text="{Binding [Wizard_MaxPlayers], Source={x:Static loc:Localizer.Instance}}" />
+              <StackPanel>
+                <TextBlock Classes="label" TextWrapping="Wrap" Text="{Binding [Wizard_MaxPlayers], Source={x:Static loc:Localizer.Instance}}" />
                 <NumericUpDown Value="{Binding MaxPlayers}" Minimum="1" Maximum="1000" FormatString="0" />
               </StackPanel>
-            </Grid>
+            </WrapPanel>
             <CheckBox Margin="0,8,0,0" IsChecked="{Binding WhitelistEnabled}"
                       Content="{Binding [Wizard_Whitelist], Source={x:Static loc:Localizer.Instance}}" />
             <StackPanel IsVisible="{Binding WhitelistEnabled}">
@@ -142,7 +194,8 @@
         <Expander Header="{Binding [Wizard_Advanced], Source={x:Static loc:Localizer.Instance}}" HorizontalAlignment="Stretch">
           <StackPanel Spacing="4">
             <TextBlock Classes="label" Text="{Binding [Wizard_RestartPolicy], Source={x:Static loc:Localizer.Instance}}" />
-            <ComboBox ItemsSource="{Binding RestartPolicies}" SelectedItem="{Binding SelectedRestartPolicy}" HorizontalAlignment="Stretch">
+            <ComboBox ItemsSource="{Binding RestartPolicies}" SelectedItem="{Binding SelectedRestartPolicy}" HorizontalAlignment="Stretch"
+                      IsEnabled="{Binding !RestartPolicyLocked}">
               <ComboBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:IChoice">
                   <TextBlock Text="{Binding Label}" />
@@ -157,8 +210,8 @@
     </ScrollViewer>
 
     <!-- Summary and create: always visible -->
-    <Border Grid.Column="1" Background="{StaticResource BfSidebarBrush}"
-            BorderBrush="{StaticResource BfBorderBrush}" BorderThickness="1,0,0,0" Padding="20,32">
+    <Border x:Name="summary" Grid.Column="1" Background="{StaticResource BfSidebarBrush}"
+            BorderBrush="{StaticResource BfBorderBrush}" BorderThickness="1,0,0,0">
       <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Spacing="10">
           <TextBlock Classes="h2" Text="{Binding [Wizard_Eula], Source={x:Static loc:Localizer.Instance}}" />

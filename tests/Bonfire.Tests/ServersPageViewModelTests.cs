@@ -270,9 +270,10 @@ public sealed class ServersPageViewModelTests : IDisposable
             new ServerLogViewModel(id, _registry, _runtime, Localizer.Instance, _time, NullLogger.Instance),
             new ServerConsoleViewModel(id, operations, Localizer.Instance, NullLogger.Instance),
             new ServerPlayersViewModel(id, operations, Localizer.Instance, _time),
-            new ServerSettingsViewModel(id, _registry, operations, new NoDialogs(), Localizer.Instance, NullLogger.Instance),
+            TestDetails.Settings(id, _registry, operations, new NoDialogs()),
             TestDetails.Backups(id, _registry, _runtime, operations, new NoDialogs(), new NoLauncher()),
             TestDetails.Content(id, _registry, _runtime, operations),
+            TestDetails.Connection(),
             _registry,
             new NoLauncher(),
             new Navigator());
@@ -298,14 +299,14 @@ public sealed class ServersPageViewModelTests : IDisposable
         var stopping = new TaskCompletionSource();
         _runtime.Stop = (_, _) => stopping.Task;
         var operations = _operations; // the same coordinator as the card, as in the app
-        var settings = new ServerSettingsViewModel(id, _registry, operations, new NoDialogs(), Localizer.Instance, NullLogger.Instance);
+        var settings = TestDetails.Settings(id, _registry, operations, new NoDialogs());
         using var details = new ServerDetailsViewModel(
             Localizer.Instance, item,
             new ServerLogViewModel(id, _registry, _runtime, Localizer.Instance, _time, NullLogger.Instance),
             new ServerConsoleViewModel(id, operations, Localizer.Instance, NullLogger.Instance),
             new ServerPlayersViewModel(id, operations, Localizer.Instance, _time),
             settings, TestDetails.Backups(id, _registry, _runtime, operations, new NoDialogs(), new NoLauncher()),
-            TestDetails.Content(id, _registry, _runtime, operations), _registry, new NoLauncher(), new Navigator());
+            TestDetails.Content(id, _registry, _runtime, operations), TestDetails.Connection(), _registry, new NoLauncher(), new Navigator());
         await settings.LoadAsync();
 
         settings.Motd = "Changed";

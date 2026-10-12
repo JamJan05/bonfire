@@ -283,6 +283,52 @@ Plik: {2} ({3})</value></data>
   <data name="Wizard_ExposureLocal" xml:space="preserve"><value>Tylko ten komputer (127.0.0.1)</value></data>
   <data name="Wizard_ExposureAll" xml:space="preserve"><value>Wszystkie interfejsy sieciowe (0.0.0.0)</value></data>
   <data name="Wizard_ExposureAllWarning" xml:space="preserve"><value>Serwer będzie osiągalny w każdej sieci, do której podłączony jest ten komputer — także z internetu, jeśli router przekierowuje port.</value></data>
+  <data name="Wizard_ExposureAddress" xml:space="preserve"><value>Jeden adres tego komputera (VPN)</value></data>
+  <data name="Wizard_ExposureAddressHint" xml:space="preserve"><value>Docker przekazuje tylko połączenia zaadresowane na ten adres — na przykład adres interfejsu VPN (Tailscale, WireGuard). Gdy adresu nie ma (VPN wyłączony), Bonfire odmawia uruchomienia serwera i nigdy nie przełącza się na 0.0.0.0.</value></data>
+  <data name="Exposure_Address" xml:space="preserve"><value>{0} — {1}</value></data>
+  <data name="Exposure_AddressVpn" xml:space="preserve"><value>{0} — {1} (wygląda na VPN)</value></data>
+  <data name="Exposure_AddressAbsent" xml:space="preserve"><value>{0} — obecnie na żadnym interfejsie</value></data>
+  <data name="Exposure_NoAddresses" xml:space="preserve"><value>Brak odpowiedniego adresu: nie znaleziono interfejsu VPN ani LAN z adresem.</value></data>
+  <data name="Exposure_AddressesUnavailable" xml:space="preserve"><value>Nie udało się odczytać interfejsów sieciowych komputera.</value></data>
+  <data name="Exposure_Refresh" xml:space="preserve"><value>Odśwież adresy</value></data>
+  <data name="Exposure_RestartLocked" xml:space="preserve"><value>Przy jednym adresie serwer nigdy nie restartuje się automatycznie: restart przed uruchomieniem VPN zostawiłby port nieopublikowany.</value></data>
+  <data name="Checklist_Title" xml:space="preserve"><value>Zanim wystawisz serwer do internetu</value></data>
+  <data name="Checklist_Intro" xml:space="preserve"><value>Tylko wskazówki — nic z tego nie blokuje zapisu:</value></data>
+  <data name="Checklist_OnlineMode" xml:space="preserve"><value>Tryb online włączony (bez niego każdy dołączy pod dowolną nazwą, a whitelista nic nie chroni)</value></data>
+  <data name="Checklist_Whitelist" xml:space="preserve"><value>Whitelista włączona</value></data>
+  <data name="Checklist_EnforceWhitelist" xml:space="preserve"><value>Whitelista egzekwowana (gracze z niej usunięci są wyrzucani)</value></data>
+  <data name="Checklist_BackupNewServer" xml:space="preserve"><value>Kopia zapasowa — jeszcze żadnej, serwer jest nowy</value></data>
+  <data name="Checklist_BackupNone" xml:space="preserve"><value>Kopia zapasowa — jeszcze żadnej</value></data>
+  <data name="Checklist_BackupNewest" xml:space="preserve"><value>Kopia zapasowa — najnowsza: {0}</value></data>
+  <data name="Checklist_BackupUnreadable" xml:space="preserve"><value>Kopia zapasowa — nie udało się odczytać listy</value></data>
+  <data name="Settings_Network" xml:space="preserve"><value>Sieć</value></data>
+  <data name="Settings_NetworkNote" xml:space="preserve"><value>Zmiana portu, adresu lub polityki restartu odtwarza kontener (świat i dane zostają).</value></data>
+  <data name="Validation_ExposureInvalid" xml:space="preserve"><value>Tryb wystawienia w sieci jest nieprawidłowy.</value></data>
+  <data name="Validation_HostAddressInvalid" xml:space="preserve"><value>Wybierz adres tego komputera dla portu (IPv4 lub IPv6; nie loopback, link-local ani adres wieloznaczny).</value></data>
+  <data name="Validation_SpecificAddressRestartPolicy" xml:space="preserve"><value>Serwer na jednym adresie nie może restartować się automatycznie: wybierz „Nie restartuj automatycznie”.</value></data>
+  <data name="Validation_RestartPolicyInvalid" xml:space="preserve"><value>Polityka restartu jest nieprawidłowa.</value></data>
+  <data name="Error_AddressNotPresent" xml:space="preserve"><value>Adres serwera nie jest teraz przypisany do żadnego interfejsu sieciowego (czy VPN działa?). Serwer nie został uruchomiony.</value></data>
+  <data name="Error_AddressCheckFailed" xml:space="preserve"><value>Nie udało się sprawdzić interfejsów sieciowych komputera, więc serwer nie został uruchomiony.</value></data>
+  <data name="Error_PortNotPublished" xml:space="preserve"><value>Docker uruchomił kontener bez opublikowania portu gry, więc Bonfire go z powrotem zatrzymał. Zdarza się to po starcie, któremu nie udało się związać adresu. Użyj „Usuń kontener”, a potem „Napraw”, aby go odtworzyć — świat i dane zostają, log kontenera przepada.</value></data>
+  <data name="Error_ContainmentFailed" xml:space="preserve"><value>Docker uruchomił kontener bez poprawnego opublikowania portu gry, a Bonfire nie zdołał potwierdzić jego zatrzymania: serwer może nadal działać albo sam się uruchomić ponownie. Zatrzymaj go (lub wymuś zatrzymanie), a potem użyj „Usuń kontener” i „Napraw”, aby go odtworzyć.</value></data>
+  <data name="Connection_Title" xml:space="preserve"><value>Połączenie</value></data>
+  <data name="Connection_Intro" xml:space="preserve"><value>Gracze łączą się z:</value></data>
+  <data name="Connection_ThisComputer" xml:space="preserve"><value>ten komputer</value></data>
+  <data name="Connection_Interface" xml:space="preserve"><value>na {0}</value></data>
+  <data name="Connection_InterfaceVpn" xml:space="preserve"><value>na {0} (wygląda na VPN)</value></data>
+  <data name="Connection_NotPublishedIpv6" xml:space="preserve"><value>IPv6 na {0} — na Dockerze 29.8 zaobserwowano publikację tylko przez IPv4; demon wiążący także [::] wystawiłby ten adres</value></data>
+  <data name="Connection_AddressAbsent" xml:space="preserve"><value>obecnie na żadnym interfejsie — serwer nie może wystartować</value></data>
+  <data name="Connection_Copy" xml:space="preserve"><value>Kopiuj</value></data>
+  <data name="Connection_Copied" xml:space="preserve"><value>Skopiowano {0}.</value></data>
+  <data name="Connection_CopyFailed" xml:space="preserve"><value>Nie udało się skopiować {0} do schowka.</value></data>
+  <data name="Connection_LocalhostNote" xml:space="preserve"><value>Połączyć się mogą tylko programy na tym komputerze. Wybierz inny tryb w Ustawieniach, aby wpuścić inne komputery.</value></data>
+  <data name="Connection_AllNote_Lan" xml:space="preserve"><value>Komputery w tej samej sieci używają jednego z powyższych adresów.</value></data>
+  <data name="Connection_AllNote_Internet" xml:space="preserve"><value>Z internetu serwer jest osiągalny tylko wtedy, gdy router przekierowuje port na ten komputer (bezpośrednio przez IPv4). Za carrier-grade NAT (adres WAN routera w 100.64.0.0/10) to niemożliwe — użyj VPN albo przekaźnika. Przekierowany serwer jest publiczny: zostaw tryb online i whitelistę włączone.</value></data>
+  <data name="Connection_AllNote_Firewall" xml:space="preserve"><value>Porty publikowane przez Docker mogą omijać zwykłe reguły zapory hosta (łańcuchy Dockera są sprawdzane wcześniej). Nie zakładaj, że reguła ufw lub firewalld zamyka ten port.</value></data>
+  <data name="Connection_AllNote_Ipv6" xml:space="preserve"><value>Port jest związany z 0.0.0.0. Na Dockerze 29.8 tego projektu oznaczało to publikację tylko przez IPv4; czy demon publikuje go także na [::] (IPv6), zależy od demona, a Bonfire toleruje takie bliźniacze wiązanie.</value></data>
+  <data name="Connection_SpecificNote" xml:space="preserve"><value>Docker przekazuje tylko połączenia zaadresowane na ten adres; pozostałe adresy komputera nie prowadzą do serwera. Kto dociera do tego adresu, zależy od sieci, do której należy.</value></data>
+  <data name="Connection_SpecificNoteVpn" xml:space="preserve"><value>Docker przekazuje tylko połączenia zaadresowane na ten adres. Znajomi łączą się przez ten sam VPN; adresy LAN i publiczne tego komputera nie prowadzą do serwera.</value></data>
+  <data name="Connection_SpecificAbsentNote" xml:space="preserve"><value>Bonfire odmawia uruchomienia serwera, gdy adresu nie ma, i nigdy nie przełącza się na inny adres.</value></data>
   <data name="Port_Free" xml:space="preserve"><value>Port jest wolny.</value></data>
   <data name="Port_UsedByBonfireServer" xml:space="preserve"><value>Ten port ma już inny serwer Bonfire.</value></data>
   <data name="Port_UsedByContainer" xml:space="preserve"><value>Ten port zajmuje już kontener Dockera.</value></data>

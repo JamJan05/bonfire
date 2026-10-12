@@ -21,6 +21,22 @@ public enum SettingsApplyOutcome
 
 public sealed record SettingsApplyResult(SettingsApplyOutcome Outcome, ServerOperationException? StartError);
 
+/// <summary>Everything the settings editor may change: game settings and the network binding.</summary>
+public sealed record ServerSettingsPatch(GameSettings Game, int Port, PortExposure Exposure, string? HostAddress, RestartPolicyKind RestartPolicy)
+{
+    public static ServerSettingsPatch From(ServerDefinition definition, GameSettings game) =>
+        new(game, definition.Port, definition.Exposure, definition.HostAddress, definition.RestartPolicy);
+
+    public ServerDefinition ApplyTo(ServerDefinition definition) => definition with
+    {
+        Game = Game,
+        Port = Port,
+        Exposure = Exposure,
+        HostAddress = HostAddress,
+        RestartPolicy = RestartPolicy,
+    };
+}
+
 public sealed class SettingsValidationException(IReadOnlyList<string> errors)
     : Exception($"Invalid settings: {string.Join(", ", errors)}")
 {
@@ -48,7 +64,9 @@ public sealed class ServerOperationsService
     public ServerOperationsService(
         ServerRegistry registry, IServerRuntime runtime, IDockerStatusSource docker, ILogger<ServerOperationsService> logger,
         RestoreEngine? restore = null,
-        ContentEngine? content = null)
+        ContentEngine? content = null,
+        IHostAddresses? hostAddresses = null,
+        IPortAvailability? ports = null)
     {
         _content = content;
         _registry = registry;
@@ -56,10 +74,14 @@ public sealed class ServerOperationsService
         _docker = docker;
         _logger = logger;
         _restore = restore;
+        _hostAddresses = hostAddresses;
+        _ports = ports;
     }
 
     private readonly RestoreEngine? _restore;
     private readonly ContentEngine? _content;
+    private readonly IHostAddresses? _hostAddresses;
+    private readonly IPortAvailability? _ports;
 
     /// <summary>Runs an operation exclusively for the server (shared gate with start/stop/settings/RCON).</summary>
     public Task<T> RunExclusiveAsync<T>(Guid serverId, Func<Task<T>> action) => SerializedResult(serverId, action);
@@ -68,8 +90,44 @@ public sealed class ServerOperationsService
         Serialized(serverId, async () =>
         {
             RequireSafeDaemon();
-            await _runtime.StartAsync(LoadStartableRecord(serverId), cancellationToken);
+            var record = LoadStartableRecord(serverId);
+            await RequireHostAddressAsync(record.Definition, cancellationToken);
+            await _runtime.StartAsync(record, cancellationToken);
         });
+
+    /// <summary>
+    /// A server published on a specific host address is started only while that address is
+    /// assigned to an interface (VPN up) — never silently on another address. The runtime checks
+    /// again immediately before the Docker start; this check gives the user the answer before
+    /// anything is touched, and keeps the rule when a runtime cannot enumerate interfaces.
+    /// </summary>
+    private async Task RequireHostAddressAsync(ServerDefinition definition, CancellationToken cancellationToken)
+    {
+        if (definition.Exposure != PortExposure.SpecificAddress)
+        {
+            return;
+        }
+
+        if (_hostAddresses is null)
+        {
+            throw new ServerOperationException(ServerOperationError.AddressCheckFailed, "No interface enumeration is available");
+        }
+
+        IReadOnlyList<HostInterface> interfaces;
+        try
+        {
+            interfaces = await Task.Run(_hostAddresses.Read, cancellationToken);
+        }
+        catch (HostAddressException ex)
+        {
+            throw new ServerOperationException(ServerOperationError.AddressCheckFailed, ex.Message, ex);
+        }
+
+        if (!HostAddressRules.IsPresent(interfaces, definition.HostAddress!))
+        {
+            throw new ServerOperationException(ServerOperationError.AddressNotPresent, definition.HostAddress!);
+        }
+    }
 
     public Task StopAsync(Guid serverId, CancellationToken cancellationToken) =>
         Serialized(serverId, () =>
@@ -96,8 +154,10 @@ public sealed class ServerOperationsService
                 }
 
                 RequireSafeDaemon(); // the daemon may have changed while the server was stopping
-                ThrowIfForced(serverId); // checked immediately before starting
-                await _runtime.StartAsync(LoadStartableRecord(serverId), cancellationToken);
+                var record = LoadStartableRecord(serverId);
+                await RequireHostAddressAsync(record.Definition, cancellationToken);
+                ThrowIfForced(serverId); // checked immediately before starting (after the asynchronous address check)
+                await _runtime.StartAsync(record, cancellationToken);
             }
             finally
             {
@@ -219,7 +279,17 @@ public sealed class ServerOperationsService
     /// aborts it without changes. A running server is started again afterwards as a separate step.
     /// </summary>
     public Task<SettingsApplyResult> ApplySettingsAsync(Guid serverId, GameSettings settings, CancellationToken cancellationToken) =>
-        SerializedResult(serverId, async () =>
+        SerializedResult(serverId, () => ApplyPatchAsync(serverId, record => ServerSettingsPatch.From(record.Definition, settings), cancellationToken));
+
+    /// <summary>Game settings and the network binding together; a changed binding is checked for conflicts first.</summary>
+    public Task<SettingsApplyResult> ApplySettingsAsync(Guid serverId, ServerSettingsPatch patch, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(patch);
+        return SerializedResult(serverId, () => ApplyPatchAsync(serverId, _ => patch, cancellationToken));
+    }
+
+    private async Task<SettingsApplyResult> ApplyPatchAsync(Guid serverId, Func<ServerRecord, ServerSettingsPatch> patchFor, CancellationToken cancellationToken)
+    {
         {
             var record = LoadRecord(serverId);
             if (record.HasPendingOperation)
@@ -228,7 +298,7 @@ public sealed class ServerOperationsService
             }
 
             RequireSafeDaemon();
-            var newDefinition = record.Definition with { Game = settings };
+            var newDefinition = patchFor(record).ApplyTo(record.Definition);
             var errors = ServerDefinitionValidator.Validate(newDefinition);
             if (errors.Count > 0)
             {
@@ -239,6 +309,8 @@ public sealed class ServerOperationsService
             {
                 return new SettingsApplyResult(SettingsApplyOutcome.NoChange, null);
             }
+
+            await RequireBindingFreeAsync(record, newDefinition, cancellationToken);
 
             var state = record.ContainerId is null
                 ? null
@@ -272,14 +344,43 @@ public sealed class ServerOperationsService
             try
             {
                 RequireSafeDaemon();
-                await _runtime.StartAsync(LoadStartableRecord(serverId), cancellationToken);
+                var startable = LoadStartableRecord(serverId);
+                await RequireHostAddressAsync(startable.Definition, cancellationToken);
+                await _runtime.StartAsync(startable, cancellationToken);
                 return new SettingsApplyResult(SettingsApplyOutcome.AppliedAndRestarted, null);
             }
             catch (ServerOperationException ex)
             {
                 return new SettingsApplyResult(SettingsApplyOutcome.AppliedStartFailed, ex);
             }
-        });
+        }
+    }
+
+    /// <summary>
+    /// A changed binding must not collide with another Bonfire server, another container or a host
+    /// program. The server's own record and container are ignored; the host probe is skipped when
+    /// the new binding overlaps the current one (the old container's listener is not a conflict —
+    /// a host program that took the port is still caught by Docker when the server starts).
+    /// </summary>
+    private async Task RequireBindingFreeAsync(ServerRecord record, ServerDefinition newDefinition, CancellationToken cancellationToken)
+    {
+        var current = record.Definition;
+        var newHostIp = PortRules.HostIp(newDefinition);
+        if (_ports is null || (newDefinition.Port == current.Port && newHostIp == PortRules.HostIp(current)))
+        {
+            return;
+        }
+
+        var scope = new PortCheckScope(
+            IgnoreServerId: current.Id,
+            IgnoreContainerId: record.ContainerId,
+            ProbeHost: !PortRules.Overlaps(newHostIp, newDefinition.Port, PortRules.HostIp(current), current.Port));
+        var check = await _ports.CheckAsync(newHostIp, newDefinition.Port, scope, cancellationToken);
+        if (check is PortCheck.UsedByBonfireServer or PortCheck.UsedByContainer or PortCheck.UsedByHost)
+        {
+            throw new ServerOperationException(ServerOperationError.PortInUse, check.ToString());
+        }
+    }
 
     /// <summary>Runs the remaining steps of a persisted settings change. Never starts the server.</summary>
     private async Task<ServerRecord> CompleteSettingsChangeAsync(ServerRecord record, bool interactive, CancellationToken cancellationToken)

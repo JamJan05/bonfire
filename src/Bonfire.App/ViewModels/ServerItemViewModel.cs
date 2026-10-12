@@ -92,9 +92,7 @@ public sealed partial class ServerItemViewModel : ViewModelBase
         }
     }
 
-    public string? Address => _snapshot.Record?.Definition is { } d
-        ? $"{(d.Exposure == PortExposure.Localhost ? "127.0.0.1" : "0.0.0.0")}:{d.Port}"
-        : null;
+    public string? Address => _snapshot.Record?.Definition is { } d ? PortRules.Endpoint(d) : null;
 
     public string StatusText => _localizer[$"Status_{_snapshot.Status}"];
 
@@ -318,6 +316,8 @@ public sealed partial class ServerItemViewModel : ViewModelBase
         {
             _errorKey = $"Error_{op.Error}";
             _errorDetail = op.Error is ServerOperationError.HardeningMismatch or ServerOperationError.Docker or ServerOperationError.Conflict
+                or ServerOperationError.AddressNotPresent or ServerOperationError.AddressCheckFailed
+                or ServerOperationError.PortNotPublished or ServerOperationError.ContainmentFailed
                 ? Bound(op.Detail)
                 : null;
         }

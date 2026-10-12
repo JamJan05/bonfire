@@ -47,9 +47,31 @@ public enum ServerOperationError
     /// <summary>A force stop interrupted the settings change; nothing was changed.</summary>
     SettingsAborted,
 
+    /// <summary>The server's host address is not assigned to any interface (VPN down); it was not started.</summary>
+    AddressNotPresent,
+
+    /// <summary>The host's interfaces could not be enumerated, so a specific-address server is not started.</summary>
+    AddressCheckFailed,
+
+    /// <summary>
+    /// Docker started the container without publishing the game port (seen on Docker 29.8 after a
+    /// start that failed to bind the host address). The container was stopped again; it must be
+    /// removed and recreated.
+    /// </summary>
+    PortNotPublished,
+
+    /// <summary>
+    /// As <see cref="PortNotPublished"/>, but stopping the container failed too: it may still be
+    /// running with the wrong (or no) publication and needs a stop or force stop by the user.
+    /// </summary>
+    ContainmentFailed,
+
     /// <summary>Any other Docker error.</summary>
     Docker,
 }
+
+/// <summary>A host port binding and the container holding it.</summary>
+public sealed record PublishedPort(string ContainerId, PortBinding Binding);
 
 public sealed class ServerOperationException(ServerOperationError error, string detail, Exception? inner = null)
     : Exception($"{error}: {detail}", inner)
@@ -97,7 +119,11 @@ public interface IServerRuntime
     /// </summary>
     Task<ServerRecord> ProvisionAsync(ServerRecord record, Func<ServerRecord, Task> persist, CancellationToken cancellationToken);
 
-    /// <summary>Verifies the container configuration and starts it.</summary>
+    /// <summary>
+    /// Verifies the container configuration, refuses a specific host address that is not assigned
+    /// right now, starts the container and checks that Docker actually published the game port
+    /// (otherwise the container is stopped again and <see cref="ServerOperationError.PortNotPublished"/> is raised).
+    /// </summary>
     Task StartAsync(ServerRecord record, CancellationToken cancellationToken);
 
     /// <summary>
@@ -141,6 +167,6 @@ public interface IServerRuntime
     /// </summary>
     Task<RconResult> ExecRconAsync(ServerRecord record, string command, IReadOnlyList<string> secrets, TimeSpan timeout, CancellationToken cancellationToken);
 
-    /// <summary>Host ports published by any container on this daemon (not only Bonfire's).</summary>
-    Task<IReadOnlyList<PortBinding>> ListPublishedPortsAsync(CancellationToken cancellationToken);
+    /// <summary>Host ports published (or reserved by a stopped container) by any container on this daemon, not only Bonfire's.</summary>
+    Task<IReadOnlyList<PublishedPort>> ListPublishedPortsAsync(CancellationToken cancellationToken);
 }

@@ -48,7 +48,7 @@ public sealed class ServerLifecycleTests
         var endpoint = DockerEndpoint.Resolve(Environment.GetEnvironmentVariable)!;
         using var connection = new DockerConnection(endpoint);
         var runtime = new DockerServerRuntime(
-            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid,
+            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid, new HostAddresses(),
             NullLogger<DockerServerRuntime>.Instance);
 
         try
@@ -171,7 +171,7 @@ public sealed class ServerLifecycleTests
         var endpoint = DockerEndpoint.Resolve(Environment.GetEnvironmentVariable)!;
         using var connection = new DockerConnection(endpoint);
         var runtime = new DockerServerRuntime(
-            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid,
+            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid, new HostAddresses(),
             NullLogger<DockerServerRuntime>.Instance);
         using var http = new Bonfire.Infrastructure.Metadata.MetadataHttpClient();
         var metadata = new Bonfire.Infrastructure.Metadata.ServerMetadataService(http);
@@ -231,7 +231,7 @@ public sealed class ServerLifecycleTests
         var endpoint = DockerEndpoint.Resolve(Environment.GetEnvironmentVariable)!;
         using var connection = new DockerConnection(endpoint);
         var runtime = new DockerServerRuntime(
-            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid,
+            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid, new HostAddresses(),
             NullLogger<DockerServerRuntime>.Instance);
         var operations = new Bonfire.App.Services.ServerOperationsService(
             registry, runtime, new ServerCreationTests.SafeDocker(), NullLogger<Bonfire.App.Services.ServerOperationsService>.Instance);
@@ -298,7 +298,7 @@ public sealed class ServerLifecycleTests
         var endpoint = DockerEndpoint.Resolve(Environment.GetEnvironmentVariable)!;
         using var connection = new DockerConnection(endpoint);
         var runtime = new DockerServerRuntime(
-            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid,
+            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid, new HostAddresses(),
             NullLogger<DockerServerRuntime>.Instance);
         var restore = new Bonfire.App.Services.RestoreEngine(registry, runtime, TimeProvider.System, NullLogger<Bonfire.App.Services.RestoreEngine>.Instance);
         var operations = new Bonfire.App.Services.ServerOperationsService(
@@ -374,7 +374,7 @@ public sealed class ServerLifecycleTests
         var endpoint = DockerEndpoint.Resolve(Environment.GetEnvironmentVariable)!;
         using var connection = new DockerConnection(endpoint);
         var runtime = new DockerServerRuntime(
-            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid,
+            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid, new HostAddresses(),
             NullLogger<DockerServerRuntime>.Instance);
         var engine = new Bonfire.App.Services.ContentEngine(registry, runtime, NullLogger<Bonfire.App.Services.ContentEngine>.Instance);
         var operations = new Bonfire.App.Services.ServerOperationsService(

@@ -118,6 +118,43 @@ public static class HardeningVerifier
         return problems;
     }
 
+    /// <summary>
+    /// After a start: what Docker really published must be exactly the requested binding — same
+    /// container port and protocol, the same host address (compared as an address) and host port,
+    /// nothing more (a wildcard or second family would widen the exposure) and nothing less.
+    /// Returns the problem, or null when the publication matches.
+    /// </summary>
+    public static string? VerifyPublishedPort(ContainerSpec spec, IReadOnlyList<PortBinding> effective)
+    {
+        ArgumentNullException.ThrowIfNull(spec);
+        ArgumentNullException.ThrowIfNull(effective);
+        if (effective.Count == 0)
+        {
+            return "the game port is not published";
+        }
+
+        var expected = spec.Port;
+        // "All interfaces" is 0.0.0.0 explicitly, which Docker 29.8 publishes over IPv4 only; a daemon
+        // that adds the IPv6 wildcard for the same port still honours "every interface", so that one
+        // extra binding is tolerated. Any other mode gets exactly one binding.
+        var tolerated = expected.HostIp == "0.0.0.0" && effective.Count == 2
+            ? effective.Where(b => !(b.HostIp is "::" or "[::]" && b.HostPort == expected.HostPort && b.ContainerPort == expected.ContainerPort && b.Protocol == expected.Protocol)).ToList()
+            : effective;
+        if (tolerated.Count != 1)
+        {
+            return $"{effective.Count} ports are published instead of one";
+        }
+
+        var p = tolerated[0];
+        return p.ContainerPort == expected.ContainerPort
+               && p.Protocol == expected.Protocol
+               && p.HostPort == expected.HostPort
+               && !string.IsNullOrEmpty(p.HostIp)
+               && HostAddressRules.AreEqual(p.HostIp, expected.HostIp)
+            ? null
+            : $"published {p.HostIp}:{p.HostPort}->{p.ContainerPort}/{p.Protocol} instead of {expected.HostIp}:{expected.HostPort}->{expected.ContainerPort}/{expected.Protocol}";
+    }
+
     public static string DockerRestartPolicyName(RestartPolicyKind kind) => kind switch
     {
         RestartPolicyKind.No => "no",

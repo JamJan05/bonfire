@@ -114,6 +114,8 @@ public sealed class HardeningVerifierTests
         { "docker socket mounted", o => o with { Mounts = [.. o.Mounts, new BindMount("/var/run/docker.sock", "/var/run/docker.sock", false)] } },
         { "home mounted", o => o with { Mounts = [new BindMount("/home", "/data", false), o.Mounts[1]] } },
         { "port on all interfaces", o => o with { Ports = [o.Ports[0] with { HostIp = "0.0.0.0" }] } },
+        { "port on another address", o => o with { Ports = [o.Ports[0] with { HostIp = "10.8.0.1" }] } },
+        { "port on a second address as well", o => o with { Ports = [o.Ports[0], o.Ports[0] with { HostIp = "10.8.0.1" }] } },
         { "udp instead of tcp", o => o with { Ports = [o.Ports[0] with { Protocol = "udp" }] } },
         { "rcon published", o => o with { Ports = [.. o.Ports, new PortBinding(25575, "tcp", "127.0.0.1", 25575)] } },
         { "extra network", o => o with { Networks = new Dictionary<string, string>(o.Networks) { ["bridge"] = "b" } } },

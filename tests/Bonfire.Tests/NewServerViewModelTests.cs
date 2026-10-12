@@ -53,6 +53,7 @@ public sealed class NewServerViewModelTests : IDisposable
     private readonly ServerRegistry _registry;
     private readonly FakeServerRuntime _runtime = new();
     private readonly ControlledMetadata _metadata = new();
+    private readonly FakeHostAddresses _hosts = FakeHostAddresses.Typical();
     private readonly Navigator _navigator = new();
     private readonly NewServerViewModel _wizard;
     private int _shownServers;
@@ -69,7 +70,7 @@ public sealed class NewServerViewModelTests : IDisposable
         var creation = new ServerCreationService(_registry, _runtime, operations, ports, TimeProvider.System, NullLogger<ServerCreationService>.Instance);
         _navigator.ServersRequested += (_, _) => _shownServers++;
         _wizard = new NewServerViewModel(
-            Localizer.Instance, _metadata, creation, ports, new NoLauncher(), _navigator, TimeProvider.System,
+            Localizer.Instance, _metadata, creation, ports, _hosts, new NoLauncher(), _navigator, TimeProvider.System,
             NullLogger<NewServerViewModel>.Instance, () => new MemoryInfo(16L << 30, 8L << 30));
     }
 
