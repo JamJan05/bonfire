@@ -30,26 +30,32 @@
   <DockPanel Margin="32,24">
     <!-- Header: same live state and actions as the server card -->
     <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,16" DataContext="{Binding Server}" x:DataType="vm:ServerItemViewModel">
-      <DockPanel>
-        <Button DockPanel.Dock="Left" Margin="0,0,16,0" VerticalAlignment="Center"
+      <!-- Stacked, wrapping rows: nothing overlaps when the window is narrow. -->
+      <Grid ColumnDefinitions="Auto,Auto,*">
+        <Button Margin="0,0,16,0" VerticalAlignment="Center"
                 Content="{Binding [Common_Back], Source={x:Static loc:Localizer.Instance}}"
                 Command="{Binding $parent[UserControl].((vm:ServerDetailsViewModel)DataContext).BackCommand}" />
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-          <Button Content="{Binding [Server_Action_Start], Source={x:Static loc:Localizer.Instance}}"
-                  Command="{Binding StartCommand}" IsVisible="{Binding ShowStart}" />
-          <Button Content="{Binding [Server_Action_Stop], Source={x:Static loc:Localizer.Instance}}" Command="{Binding StopCommand}" />
-          <Button Content="{Binding [Server_Action_Restart], Source={x:Static loc:Localizer.Instance}}" Command="{Binding RestartCommand}" />
-          <Button Content="{Binding [Server_Action_Repair], Source={x:Static loc:Localizer.Instance}}"
-                  Command="{Binding RepairCommand}" IsVisible="{Binding ShowRepair}" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-          <Ellipse Width="11" Height="11" VerticalAlignment="Center" Classes="status"
-                   Classes.ok="{Binding IsOk}" Classes.warning="{Binding IsWarning}" Classes.problem="{Binding IsProblem}" />
-          <TextBlock Classes="h1" Text="{Binding Name}" />
-          <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding StatusText}" />
+        <Ellipse Grid.Column="1" Width="11" Height="11" Margin="0,0,10,0" VerticalAlignment="Center" Classes="status"
+                 Classes.ok="{Binding IsOk}" Classes.warning="{Binding IsWarning}" Classes.problem="{Binding IsProblem}" />
+        <WrapPanel Grid.Column="2" VerticalAlignment="Center">
+          <TextBlock Classes="h1" Text="{Binding Name}" TextWrapping="Wrap" Margin="0,0,10,0" />
+          <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding StatusText}" Margin="0,0,10,0" />
           <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="12" Text="{Binding StateDetail}" />
-        </StackPanel>
-      </DockPanel>
+        </WrapPanel>
+      </Grid>
+      <WrapPanel>
+        <WrapPanel.Styles>
+          <Style Selector="Button">
+            <Setter Property="Margin" Value="0,0,8,8" />
+          </Style>
+        </WrapPanel.Styles>
+        <Button Content="{Binding [Server_Action_Start], Source={x:Static loc:Localizer.Instance}}"
+                Command="{Binding StartCommand}" IsVisible="{Binding ShowStart}" />
+        <Button Content="{Binding [Server_Action_Stop], Source={x:Static loc:Localizer.Instance}}" Command="{Binding StopCommand}" />
+        <Button Content="{Binding [Server_Action_Restart], Source={x:Static loc:Localizer.Instance}}" Command="{Binding RestartCommand}" />
+        <Button Content="{Binding [Server_Action_Repair], Source={x:Static loc:Localizer.Instance}}"
+                Command="{Binding RepairCommand}" IsVisible="{Binding ShowRepair}" />
+      </WrapPanel>
       <Border Classes="notice" IsVisible="{Binding IsStopping}">
         <DockPanel>
           <Button DockPanel.Dock="Right" Classes="danger"
@@ -149,7 +155,7 @@
       </TabItem>
 
       <TabItem Header="{Binding [Details_Settings], Source={x:Static loc:Localizer.Instance}}">
-        <ScrollViewer Margin="0,12,0,0">
+        <ScrollViewer Margin="0,12,0,0" Padding="0,0,16,0" HorizontalScrollBarVisibility="Disabled">
           <StackPanel DataContext="{Binding Settings}" x:DataType="vm:ServerSettingsViewModel" Spacing="12"
                       MaxWidth="760" HorizontalAlignment="Left">
             <TextBlock Classes="muted" TextWrapping="Wrap"
@@ -159,38 +165,39 @@
                 <TextBlock Classes="muted" Text="{Binding [Settings_Motd], Source={x:Static loc:Localizer.Instance}}" />
                 <TextBox Text="{Binding Motd}" MaxLength="120" />
                 <TextBlock Classes="muted" FontSize="12" Text="{Binding [Settings_MotdHint], Source={x:Static loc:Localizer.Instance}}" />
-                <Grid ColumnDefinitions="*,16,*" Margin="0,8,0,0">
-                  <StackPanel Spacing="4">
-                    <TextBlock Classes="muted" Text="{Binding [Settings_GameMode], Source={x:Static loc:Localizer.Instance}}" />
+                <!-- Fixed-width fields that wrap to the next row when the window is narrow. -->
+                <WrapPanel Margin="0,8,0,0">
+                  <StackPanel Spacing="4" Width="220" Margin="0,0,16,8">
+                    <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Settings_GameMode], Source={x:Static loc:Localizer.Instance}}" />
                     <ComboBox ItemsSource="{Binding GameModes}" SelectedItem="{Binding SelectedGameMode}" HorizontalAlignment="Stretch">
                       <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:IChoice"><TextBlock Text="{Binding Label}" /></DataTemplate>
                       </ComboBox.ItemTemplate>
                     </ComboBox>
                   </StackPanel>
-                  <StackPanel Grid.Column="2" Spacing="4">
-                    <TextBlock Classes="muted" Text="{Binding [Wizard_Difficulty], Source={x:Static loc:Localizer.Instance}}" />
+                  <StackPanel Spacing="4" Width="220" Margin="0,0,16,8">
+                    <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Wizard_Difficulty], Source={x:Static loc:Localizer.Instance}}" />
                     <ComboBox ItemsSource="{Binding Difficulties}" SelectedItem="{Binding SelectedDifficulty}" HorizontalAlignment="Stretch">
                       <ComboBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:IChoice"><TextBlock Text="{Binding Label}" /></DataTemplate>
                       </ComboBox.ItemTemplate>
                     </ComboBox>
                   </StackPanel>
-                </Grid>
-                <Grid ColumnDefinitions="*,16,*,16,*" Margin="0,8,0,0">
-                  <StackPanel Spacing="4">
-                    <TextBlock Classes="muted" Text="{Binding [Wizard_MaxPlayers], Source={x:Static loc:Localizer.Instance}}" />
+                </WrapPanel>
+                <WrapPanel>
+                  <StackPanel Spacing="4" Width="220" Margin="0,0,16,8">
+                    <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Wizard_MaxPlayers], Source={x:Static loc:Localizer.Instance}}" />
                     <NumericUpDown Value="{Binding MaxPlayers}" Minimum="1" Maximum="1000" FormatString="0" />
                   </StackPanel>
-                  <StackPanel Grid.Column="2" Spacing="4">
-                    <TextBlock Classes="muted" Text="{Binding [Settings_ViewDistance], Source={x:Static loc:Localizer.Instance}}" />
+                  <StackPanel Spacing="4" Width="220" Margin="0,0,16,8">
+                    <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Settings_ViewDistance], Source={x:Static loc:Localizer.Instance}}" />
                     <NumericUpDown Value="{Binding ViewDistance}" Minimum="2" Maximum="32" FormatString="0" />
                   </StackPanel>
-                  <StackPanel Grid.Column="4" Spacing="4">
-                    <TextBlock Classes="muted" Text="{Binding [Settings_SpawnProtection], Source={x:Static loc:Localizer.Instance}}" />
+                  <StackPanel Spacing="4" Width="220" Margin="0,0,16,8">
+                    <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding [Settings_SpawnProtection], Source={x:Static loc:Localizer.Instance}}" />
                     <NumericUpDown Value="{Binding SpawnProtection}" Minimum="0" Maximum="1000" FormatString="0" />
                   </StackPanel>
-                </Grid>
+                </WrapPanel>
                 <CheckBox Margin="0,8,0,0" IsChecked="{Binding Pvp}" Content="{Binding [Settings_Pvp], Source={x:Static loc:Localizer.Instance}}" />
                 <CheckBox IsChecked="{Binding AllowFlight}" Content="{Binding [Settings_AllowFlight], Source={x:Static loc:Localizer.Instance}}" />
                 <CheckBox IsChecked="{Binding CommandBlocks}" Content="{Binding [Settings_CommandBlocks], Source={x:Static loc:Localizer.Instance}}" />
@@ -208,11 +215,9 @@
                 <TextBlock Classes="h2" Text="{Binding [Settings_Network], Source={x:Static loc:Localizer.Instance}}" />
                 <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [Settings_NetworkNote], Source={x:Static loc:Localizer.Instance}}" />
                 <TextBlock Classes="muted" Text="{Binding [Wizard_Port], Source={x:Static loc:Localizer.Instance}}" />
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                  <NumericUpDown Value="{Binding Port}" Minimum="1024" Maximum="65535" FormatString="0" Width="160" />
-                  <TextBlock VerticalAlignment="Center" Text="{Binding PortStatus}" TextWrapping="Wrap"
-                             Classes.warn="{Binding PortProblem}" Classes.muted="{Binding !PortProblem}" />
-                </StackPanel>
+                <NumericUpDown Value="{Binding Port}" Minimum="1024" Maximum="65535" FormatString="0" Width="160" HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding PortStatus}" TextWrapping="Wrap"
+                           Classes.warn="{Binding PortProblem}" Classes.muted="{Binding !PortProblem}" />
                 <RadioButton Margin="0,8,0,0" GroupName="settings-exposure" IsChecked="{Binding IsLocalhost}"
                              Content="{Binding [Wizard_ExposureLocal], Source={x:Static loc:Localizer.Instance}}" />
                 <RadioButton GroupName="settings-exposure" IsChecked="{Binding IsAllInterfaces}"
@@ -224,10 +229,10 @@
                   <ItemsControl ItemsSource="{Binding Checklist}">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate x:DataType="vm:ChecklistItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                          <TextBlock Text="{Binding Mark}" Width="16" />
-                          <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
-                        </StackPanel>
+                        <Grid ColumnDefinitions="Auto,*">
+                          <TextBlock Text="{Binding Mark}" Width="16" Margin="0,0,8,0" />
+                          <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" />
+                        </Grid>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
@@ -476,7 +481,7 @@
       </TabItem>
 
       <TabItem Header="{Binding [Details_Info], Source={x:Static loc:Localizer.Instance}}">
-        <ScrollViewer Margin="0,12,0,0">
+        <ScrollViewer Margin="0,12,0,0" Padding="0,0,16,0" HorizontalScrollBarVisibility="Disabled">
           <StackPanel Spacing="16" MaxWidth="1000" HorizontalAlignment="Left">
             <Border Classes="card">
               <StackPanel DataContext="{Binding Connection}" x:DataType="vm:ConnectionInfoViewModel" Spacing="6">
@@ -500,8 +505,9 @@
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <TextBlock Classes="muted" Text="{Binding CopiedText}" />
-                <TextBlock Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" Text="{Binding LoadError}" />
+                <TextBlock Classes="muted" Text="{Binding CopiedText}" IsVisible="{Binding CopiedText, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                <TextBlock Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" Text="{Binding LoadError}"
+                           IsVisible="{Binding LoadError, Converter={x:Static ObjectConverters.IsNotNull}}" />
                 <ItemsControl ItemsSource="{Binding Notes}" Margin="0,6,0,0">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="sys:String">

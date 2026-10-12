@@ -4,8 +4,13 @@
              xmlns:loc="using:Bonfire.App.Localization"
              x:Class="Bonfire.App.Views.ServersPageView"
              x:DataType="vm:ServersPageViewModel">
-  <ScrollViewer>
-    <StackPanel Margin="40,32" Spacing="20" MaxWidth="1100" HorizontalAlignment="Left">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <!-- A column capped at 1100: the cards fill the window up to that width and stay left-aligned beyond it. -->
+    <Grid Margin="40,32">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" MaxWidth="1100" />
+      </Grid.ColumnDefinitions>
+    <StackPanel Spacing="20">
       <DockPanel>
         <Button DockPanel.Dock="Right"
                 Content="{Binding [Servers_NewServer], Source={x:Static loc:Localizer.Instance}}"
@@ -77,34 +82,40 @@
             <DataTemplate x:DataType="vm:ServerItemViewModel">
               <Border Classes="server">
                 <StackPanel Spacing="8">
-                  <DockPanel>
-                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
-                      <Button Content="{Binding [Server_Action_Details], Source={x:Static loc:Localizer.Instance}}"
-                              Command="{Binding ShowDetailsCommand}" IsVisible="{Binding Snapshot.Record, Converter={x:Static ObjectConverters.IsNotNull}}" />
-                      <Button Content="{Binding [Server_Action_Start], Source={x:Static loc:Localizer.Instance}}"
-                              Command="{Binding StartCommand}" IsVisible="{Binding ShowStart}" />
-                      <Button Content="{Binding [Server_Action_Stop], Source={x:Static loc:Localizer.Instance}}"
-                              Command="{Binding StopCommand}" />
-                      <Button Content="{Binding [Server_Action_Restart], Source={x:Static loc:Localizer.Instance}}"
-                              Command="{Binding RestartCommand}" />
-                      <Button Content="{Binding [Server_Action_Repair], Source={x:Static loc:Localizer.Instance}}"
-                              Command="{Binding RepairCommand}" IsVisible="{Binding ShowRepair}" />
-                      <Button Content="{Binding [Server_Action_RemoveContainer], Source={x:Static loc:Localizer.Instance}}"
-                              Command="{Binding RemoveContainerCommand}" IsVisible="{Binding ShowRemoveContainer}" />
-                    </StackPanel>
-                    <StackPanel Spacing="2">
-                      <StackPanel Orientation="Horizontal" Spacing="10">
-                        <Ellipse Width="10" Height="10" VerticalAlignment="Center" Classes="status"
-                                 Classes.ok="{Binding IsOk}" Classes.warning="{Binding IsWarning}" Classes.problem="{Binding IsProblem}" />
-                        <TextBlock Classes="h2" Text="{Binding Name}" />
-                        <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding StatusText}" />
+                  <!-- Stacked, wrapping rows: nothing overlaps when the window is narrow. -->
+                  <StackPanel Spacing="2">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <Ellipse Width="10" Height="10" Margin="0,0,10,0" VerticalAlignment="Center" Classes="status"
+                               Classes.ok="{Binding IsOk}" Classes.warning="{Binding IsWarning}" Classes.problem="{Binding IsProblem}" />
+                      <WrapPanel Grid.Column="1">
+                        <TextBlock Classes="h2" Text="{Binding Name}" TextWrapping="Wrap" Margin="0,0,10,0" />
+                        <TextBlock Classes="muted" VerticalAlignment="Center" Text="{Binding StatusText}" Margin="0,0,10,0" />
                         <TextBlock Classes="muted" VerticalAlignment="Center" FontSize="12" Text="{Binding StateDetail}" />
-                      </StackPanel>
-                      <TextBlock Classes="muted" FontSize="13">
-                        <Run Text="{Binding Details}" /><Run Text="  ·  " /><Run Text="{Binding Address}" />
-                      </TextBlock>
-                    </StackPanel>
-                  </DockPanel>
+                      </WrapPanel>
+                    </Grid>
+                    <TextBlock Classes="muted" FontSize="13" TextWrapping="Wrap">
+                      <Run Text="{Binding Details}" /><Run Text="  ·  " /><Run Text="{Binding Address}" />
+                    </TextBlock>
+                  </StackPanel>
+                  <WrapPanel Margin="0,6,0,0">
+                    <WrapPanel.Styles>
+                      <Style Selector="Button">
+                        <Setter Property="Margin" Value="0,0,8,8" />
+                      </Style>
+                    </WrapPanel.Styles>
+                    <Button Content="{Binding [Server_Action_Details], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding ShowDetailsCommand}" IsVisible="{Binding Snapshot.Record, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <Button Content="{Binding [Server_Action_Start], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding StartCommand}" IsVisible="{Binding ShowStart}" />
+                    <Button Content="{Binding [Server_Action_Stop], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding StopCommand}" />
+                    <Button Content="{Binding [Server_Action_Restart], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding RestartCommand}" />
+                    <Button Content="{Binding [Server_Action_Repair], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding RepairCommand}" IsVisible="{Binding ShowRepair}" />
+                    <Button Content="{Binding [Server_Action_RemoveContainer], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding RemoveContainerCommand}" IsVisible="{Binding ShowRemoveContainer}" />
+                  </WrapPanel>
 
                   <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
 
@@ -128,5 +139,6 @@
       </StackPanel>
 
     </StackPanel>
+    </Grid>
   </ScrollViewer>
 </UserControl>
