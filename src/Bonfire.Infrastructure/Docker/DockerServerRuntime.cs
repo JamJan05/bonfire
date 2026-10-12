@@ -24,8 +24,12 @@ public sealed class DockerServerRuntime : IServerRuntime
     private readonly Guid _installationId;
     private readonly int _uid;
     private readonly int _gid;
+    private readonly IHostAddresses _hostAddresses;
     private readonly ILogger<DockerServerRuntime> _logger;
     private readonly ConcurrentDictionary<Guid, SemaphoreSlim> _locks = new();
+
+    /// <summary>Stopping a container that started without its port is bounded and independent of the caller's cancellation.</summary>
+    private static readonly TimeSpan ContainmentTimeout = TimeSpan.FromSeconds(30);
 
     /// <summary>rcon-cli inside the pinned image (verified: /usr/local/bin/rcon-cli).</summary>
     public const string RconCliPath = "/usr/local/bin/rcon-cli";
@@ -59,6 +63,7 @@ public sealed class DockerServerRuntime : IServerRuntime
         Guid installationId,
         int uid,
         int gid,
+        IHostAddresses hostAddresses,
         ILogger<DockerServerRuntime> logger)
     {
         _connection = connection;
@@ -66,6 +71,7 @@ public sealed class DockerServerRuntime : IServerRuntime
         _installationId = installationId;
         _uid = uid;
         _gid = gid;
+        _hostAddresses = hostAddresses;
         _logger = logger;
     }
 
@@ -183,7 +189,9 @@ public sealed class DockerServerRuntime : IServerRuntime
         {
             var client = await _connection.GetClientAsync(cancellationToken);
             var containerId = RequireContainer(record);
-            await VerifyAsync(client, record, BuildSpec(record.Definition), cancellationToken);
+            var spec = BuildSpec(record.Definition);
+            await VerifyAsync(client, record, spec, cancellationToken);
+            await RequireHostAddressAsync(record.Definition, cancellationToken); // enumerated afresh, right before the start
             try
             {
                 await client.Containers.StartContainerAsync(containerId, new ContainerStartParameters(), cancellationToken);
@@ -192,7 +200,165 @@ public sealed class DockerServerRuntime : IServerRuntime
             {
                 throw new ServerOperationException(ServerOperationError.PortInUse, $"Port {record.Definition.Port} is already in use", ex);
             }
+            catch (DockerApiException ex) when (IsBindFailure(ex))
+            {
+                // The address went away between the check and Docker's bind: the message is "VPN down", not "Docker error".
+                if (await HostAddressVanishedAsync(record.Definition))
+                {
+                    throw new ServerOperationException(ServerOperationError.AddressNotPresent, record.Definition.HostAddress!, ex);
+                }
+
+                throw;
+            }
+            catch (Exception ex) when (ex is OperationCanceledException or HttpRequestException or IOException)
+            {
+                // The outcome is unknown: Docker may have started the container although the answer
+                // was lost. A running container must still have its publication verified (or be contained).
+                if (await MayBeRunningAsync(client, containerId))
+                {
+                    await RequirePublishedAsync(client, containerId, spec);
+                }
+
+                throw;
+            }
+
+            await RequirePublishedAsync(client, containerId, spec);
         });
+
+    /// <summary>
+    /// Bounded, independent of the caller's token. Only a confirmed "not running" skips the
+    /// publication check; an unknown state goes through it (and thus through containment).
+    /// </summary>
+    private static async Task<bool> MayBeRunningAsync(DockerClient client, string containerId)
+    {
+        try
+        {
+            using var timeout = new CancellationTokenSource(ContainmentTimeout);
+            var inspect = await client.Containers.InspectContainerAsync(containerId, timeout.Token);
+            return inspect.State?.Running != false;
+        }
+        catch (DockerContainerNotFoundException)
+        {
+            return false;
+        }
+        catch (Exception ex) when (ex is DockerApiException or OperationCanceledException or IOException or HttpRequestException)
+        {
+            return true;
+        }
+    }
+
+    private async Task RequireHostAddressAsync(ServerDefinition definition, CancellationToken cancellationToken)
+    {
+        if (definition.Exposure != PortExposure.SpecificAddress)
+        {
+            return;
+        }
+
+        IReadOnlyList<HostInterface> interfaces;
+        try
+        {
+            interfaces = await Task.Run(_hostAddresses.Read, cancellationToken);
+        }
+        catch (HostAddressException ex)
+        {
+            throw new ServerOperationException(ServerOperationError.AddressCheckFailed, ex.Message, ex);
+        }
+
+        if (!HostAddressRules.IsPresent(interfaces, definition.HostAddress!))
+        {
+            throw new ServerOperationException(ServerOperationError.AddressNotPresent, definition.HostAddress!);
+        }
+    }
+
+    /// <summary>True only when a fresh enumeration shows the specific address absent; any doubt keeps Docker's own error.</summary>
+    private async Task<bool> HostAddressVanishedAsync(ServerDefinition definition)
+    {
+        if (definition.Exposure != PortExposure.SpecificAddress)
+        {
+            return false;
+        }
+
+        try
+        {
+            return !HostAddressRules.IsPresent(await Task.Run(_hostAddresses.Read), definition.HostAddress!);
+        }
+        catch (HostAddressException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Docker 29.8 starts a container whose earlier start failed to bind the host address with
+    /// nothing published at all (reproduced here three times; the configuration still shows the
+    /// binding). A server that runs unpublished — or published more widely than asked — is stopped again.
+    /// </summary>
+    private async Task RequirePublishedAsync(DockerClient client, string containerId, ContainerSpec spec)
+    {
+        // The container is running from here on: the check and the containment use their own
+        // bounded time, not the caller's token — a cancelled start must still end with a verified
+        // publication or a stopped container.
+        string? problem;
+        try
+        {
+            using var inspectTimeout = new CancellationTokenSource(ContainmentTimeout);
+            var inspect = await client.Containers.InspectContainerAsync(containerId, inspectTimeout.Token);
+            problem = HardeningVerifier.VerifyPublishedPort(spec, ContainerMapping.ToEffectivePorts(inspect));
+        }
+        catch (Exception ex) when (ex is DockerApiException or OperationCanceledException or IOException or HttpRequestException)
+        {
+            problem = $"the published ports could not be read ({ex.GetType().Name})";
+        }
+
+        if (problem is null)
+        {
+            return;
+        }
+
+        _logger.LogError("Container {ContainerId} started but {Problem}; stopping it", containerId, problem);
+        var failures = new List<string>();
+        Exception? first = null;
+
+        // The restart policy first: it would otherwise start the unpublished container again after
+        // the kill. Each step gets its own time, and the kill is attempted whatever happened before.
+        try
+        {
+            using var updateTimeout = new CancellationTokenSource(ContainmentTimeout);
+            await client.Containers.UpdateContainerAsync(
+                containerId,
+                new ContainerUpdateParameters
+                {
+                    RestartPolicy = new DockerRestartPolicyType { Name = ContainerMapping.ToDockerPolicy(Core.Servers.RestartPolicyKind.No), MaximumRetryCount = 0 },
+                },
+                updateTimeout.Token);
+        }
+        catch (Exception ex) when (ex is DockerApiException or OperationCanceledException or IOException or HttpRequestException)
+        {
+            _logger.LogError(ex, "Could not disable the restart policy of container {ContainerId}", containerId);
+            failures.Add("disabling the restart policy failed");
+            first ??= ex;
+        }
+
+        try
+        {
+            using var killTimeout = new CancellationTokenSource(ContainmentTimeout);
+            await client.Containers.KillContainerAsync(containerId, new ContainerKillParameters(), killTimeout.Token);
+        }
+        catch (DockerApiException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
+        {
+            // Not running any more: nothing left to stop.
+        }
+        catch (Exception ex) when (ex is DockerApiException or OperationCanceledException or IOException or HttpRequestException)
+        {
+            _logger.LogError(ex, "Could not stop container {ContainerId} after an unpublished start", containerId);
+            failures.Add("stopping the container failed as well");
+            first ??= ex;
+        }
+
+        throw failures.Count == 0
+            ? new ServerOperationException(ServerOperationError.PortNotPublished, problem)
+            : new ServerOperationException(ServerOperationError.ContainmentFailed, $"{problem}; {string.Join("; ", failures)}", first);
+    }
 
     public Task StopAsync(ServerRecord record, CancellationToken cancellationToken) =>
         Locked(record, async () =>
@@ -559,26 +725,26 @@ public sealed class DockerServerRuntime : IServerRuntime
         RconCommands.CleanOutput(
             new System.Text.UTF8Encoding(false, false).GetString(output.GetBuffer(), 0, (int)output.Length), secrets, cutOff);
 
-    public async Task<IReadOnlyList<Core.Servers.PortBinding>> ListPublishedPortsAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<PublishedPort>> ListPublishedPortsAsync(CancellationToken cancellationToken)
     {
         var client = await _connection.GetClientAsync(cancellationToken);
         // Stopped containers keep their port reservation in their configuration, so include them.
         var containers = await client.Containers.ListContainersAsync(new ContainersListParameters { All = true }, cancellationToken);
-        var bindings = new List<Core.Servers.PortBinding>();
+        var bindings = new List<PublishedPort>();
         foreach (var c in containers)
         {
             foreach (var p in c.Ports ?? [])
             {
                 if (p.PublicPort > 0)
                 {
-                    bindings.Add(new Core.Servers.PortBinding((int)p.PrivatePort, p.Type ?? "tcp", p.IP ?? "", (int)p.PublicPort));
+                    bindings.Add(new PublishedPort(c.ID, new Core.Servers.PortBinding((int)p.PrivatePort, p.Type ?? "tcp", p.IP ?? "", (int)p.PublicPort)));
                 }
             }
 
             if (c.State != "running")
             {
                 var inspect = await client.Containers.InspectContainerAsync(c.ID, cancellationToken);
-                bindings.AddRange(ContainerMapping.ToObserved(inspect).Ports);
+                bindings.AddRange(ContainerMapping.ToObserved(inspect).Ports.Select(b => new PublishedPort(c.ID, b)));
             }
         }
 
@@ -742,6 +908,11 @@ public sealed class DockerServerRuntime : IServerRuntime
     private static bool IsPortConflict(DockerApiException ex) =>
         ex.ResponseBody?.Contains("port is already allocated", StringComparison.OrdinalIgnoreCase) == true
         || ex.ResponseBody?.Contains("address already in use", StringComparison.OrdinalIgnoreCase) == true;
+
+    /// <summary>Docker 29.8: "failed to bind host port 10.0.0.1:25565/tcp: cannot assign requested address".</summary>
+    private static bool IsBindFailure(DockerApiException ex) =>
+        ex.ResponseBody?.Contains("cannot assign requested address", StringComparison.OrdinalIgnoreCase) == true
+        || ex.ResponseBody?.Contains("failed to bind host port", StringComparison.OrdinalIgnoreCase) == true;
 
     private static async Task IgnoreNotFound(Func<Task> action)
     {

@@ -14,8 +14,10 @@ many automatic backups are kept.
 1. Choose the type — **Vanilla**, **Fabric** (mods) or **Paper** (plugins) — and a Minecraft
    version. Versions and loader builds come from Mojang, Fabric and Paper; only stable Paper builds
    are offered.
-2. Set the name, port, memory and whether the server is reachable from other computers
-   (`0.0.0.0`) or only from this one (`127.0.0.1`).
+2. Set the name, port, memory and where the port is published: only on this computer
+   (`127.0.0.1`), on all network interfaces (`0.0.0.0`, with an advisory checklist for exposing a
+   server), or on **one address of this computer** — the address of a VPN interface such as
+   Tailscale or WireGuard, listed with its interface name (see *Playing with friends* below).
 3. Accept the Minecraft EULA. Bonfire downloads the `itzg/minecraft-server` image for the
    required Java version, pins it to an exact image digest and creates the container.
 
@@ -32,11 +34,14 @@ The server card has **Start**, **Stop**, **Restart** and — while a stop takes 
 - **Console** — commands through RCON inside the container; typing `stop` stops the server as the
   Stop button does.
 - **Players** — who is online.
-- **Settings** — MOTD, game mode, difficulty, players, whitelist, restart policy and more. Applying
-  changes recreates the container (world and data stay); a running server is restarted.
+- **Settings** — MOTD, game mode, difficulty, players, online mode, whitelist, and under
+  *Network* the port, where it is published and the restart policy. Applying changes recreates the
+  container (world and data stay); a running server is restarted.
 - **Backups** — see below.
 - **Add-ons** — mods (Fabric) or plugins (Paper), see below.
-- **Information** — versions, image, container, data folder.
+- **Information** — *Connection*: the addresses players connect to, read from this computer's
+  interfaces right now, each with a *Copy* button, plus what the chosen mode means for the LAN,
+  the internet and the host firewall; below it versions, image, container and data folder.
 
 ## Backups
 
@@ -80,8 +85,10 @@ gets a private address, only members can reach it, and nothing else is exposed. 
 - **Tailscale** — fewest steps, works behind carrier-grade NAT: install it on the host and on
   every friend's computer, share the host device with them, connect to its `100.x.y.z` address.
 - **WireGuard, self-hosted** — no account anywhere; your computer is the endpoint. It needs a
-  public address at home: if the router's WAN address starts with `100.64`–`100.127`, `10.` or
-  `192.168.`, your provider uses carrier-grade NAT and you cannot forward a port — use Tailscale.
+  public address at home: if the router's WAN address is in `100.64.0.0/10`, `10.0.0.0/8`,
+  `172.16.0.0/12` or `192.168.0.0/16`, there is another NAT in front of you (your provider's
+  carrier-grade NAT, or a second router) and a forwarded port on your router alone will not
+  work — use Tailscale, or forward on the outer router if it is yours.
 
 The WireGuard recipe below assumes Linux on the host. Friends on **Windows, macOS, Android or
 iOS** use the official WireGuard apps from <https://www.wireguard.com/install/>; it is the same
@@ -151,13 +158,28 @@ Why the forwarded WireGuard port is unlike a forwarded game port: WireGuard answ
 packets signed with a known key, so a scanner sees nothing; and removing a friend's key removes
 their access.
 
-### Bonfire today
+### In Bonfire: publish the port on the VPN address only
 
-Bonfire does not yet publish the game port on one chosen address, so a server for VPN friends
-runs with `0.0.0.0`: reachable through the tunnel and in your home network, not from the internet
-as long as the game port is not forwarded and the router does not pass inbound IPv6. Keep the
-whitelist and online mode on. A mode that publishes the port only on the VPN address is planned
-([docs/design/client-modpack.md](design/client-modpack.md)).
+In the wizard or in *Settings → Network* choose **One address of this computer** and pick the
+VPN address — `10.8.0.1` on `wg0` for the recipe above, or the `100.x.y.z` address on
+`tailscale0` (both are labelled *looks like a VPN*). Docker then forwards only connections
+addressed to that address: friends in the VPN reach the server, your home network and the
+internet do not, and nothing is forwarded on the router. The *Information* tab shows the address
+with the port and a *Copy* button.
+
+What to expect in this mode:
+
+- Bonfire refuses to start the server while the address is missing (the VPN is down) and never
+  falls back to another address; the message says which address it waited for.
+- Automatic restarts are off: a restart before the VPN is up would leave the port unpublished.
+- If a start ever fails to bind the address, Docker 29.8 afterwards runs the container with no
+  port published at all. Bonfire detects this after every start, stops the container again and
+  asks you to use *Remove container* and then *Repair* — world and data stay.
+- The guarantee is about the destination address, not the network interface: keep online mode
+  and the whitelist on anyway. A player on a VPN computer can still be anyone with that computer.
+
+The client modpack export described in [docs/design/client-modpack.md](design/client-modpack.md)
+is not implemented yet; friends install the mods by hand for now.
 
 ## When something was interrupted
 
@@ -171,6 +193,12 @@ never overwrites files that do not match what it expects.
 - **Docker not connected / permission denied** — see [INSTALL.md](INSTALL.md); log out and back in
   after adding yourself to the `docker` group.
 - **Port in use** — another program or server uses the port; choose another in Settings.
+- **"The server's address is not assigned to any network interface"** — the server is published on
+  one address (VPN mode) and that address is gone: start the VPN (`wg-quick up wg0`,
+  `tailscale up`) and start the server again. Bonfire never switches to another address by itself.
+- **"Docker started the container without publishing the game port"** — a known Docker 29.8
+  behaviour after a start that failed to bind the address. Use *Remove container*, then *Repair*;
+  world and data stay, only the container's own log is lost.
 - **"The container's configuration does not match what Bonfire expects"** — it was changed
   outside Bonfire or must be recreated after an update; use Repair (world and data stay).
 - **Logs** — `~/.local/state/bonfire/logs/`.

@@ -24,12 +24,14 @@ public sealed partial class ServerDetailsViewModel : PageViewModel, IDisposable
         ServerSettingsViewModel settings,
         ServerBackupsViewModel backups,
         ServerContentViewModel content,
+        ConnectionInfoViewModel connection,
         ServerRegistry registry,
         IFolderLauncher launcher,
         Navigator navigator)
         : base(localizer, "Server_Action_Details")
     {
         Server = server;
+        Connection = connection;
         Logs = logs;
         Console = console;
         Players = players;
@@ -72,10 +74,14 @@ public sealed partial class ServerDetailsViewModel : PageViewModel, IDisposable
 
     public ServerContentViewModel Content { get; }
 
+    /// <summary>Where players connect, with the host's current addresses (Information tab).</summary>
+    public ConnectionInfoViewModel Connection { get; }
+
     public const int PlayersTabIndex = 2;
     public const int SettingsTabIndex = 3;
     public const int BackupsTabIndex = 4;
     public const int ContentTabIndex = 5;
+    public const int InfoTabIndex = 6;
 
     private int _selectedTab;
 
@@ -101,6 +107,12 @@ public sealed partial class ServerDetailsViewModel : PageViewModel, IDisposable
                 if (value == ContentTabIndex && Content.LoadCommand.CanExecute(null))
                 {
                     Content.LoadCommand.Execute(null);
+                }
+
+                if (value == InfoTabIndex)
+                {
+                    _shownAddress = Server.Address;
+                    _ = Connection.LoadAsync(Server.Snapshot.Record?.Definition); // addresses are read afresh each time
                 }
             }
         }
@@ -151,6 +163,7 @@ public sealed partial class ServerDetailsViewModel : PageViewModel, IDisposable
         Settings.OnLanguageChanged();
         Backups.OnLanguageChanged();
         Content.OnLanguageChanged();
+        Connection.OnLanguageChanged();
     }
 
     private void OnServerChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -159,7 +172,17 @@ public sealed partial class ServerDetailsViewModel : PageViewModel, IDisposable
         {
             OnPropertyChanged(nameof(Info));
         }
+
+        // A settings change may have moved the port or the address; the panel follows the record
+        // (every poll raises Address, so only a real change reloads the host's interfaces).
+        if (e.PropertyName == nameof(ServerItemViewModel.Address) && SelectedTab == InfoTabIndex && Server.Address != _shownAddress)
+        {
+            _shownAddress = Server.Address;
+            _ = Connection.LoadAsync(Server.Snapshot.Record?.Definition);
+        }
     }
+
+    private string? _shownAddress;
 
     public void Dispose()
     {

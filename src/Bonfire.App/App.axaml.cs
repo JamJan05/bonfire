@@ -171,8 +171,11 @@ public sealed class App : Application
                 startup.InstallationId,
                 HostUser.Uid,
                 HostUser.Gid,
+                sp.GetRequiredService<IHostAddresses>(),
                 sp.GetRequiredService<ILogger<DockerServerRuntime>>());
         });
+        services.AddSingleton<IHostAddresses, HostAddresses>();
+        services.AddSingleton<IClipboardService, AvaloniaClipboardService>();
         services.AddSingleton<RestoreEngine>();
         services.AddSingleton<ContentEngine>();
         services.AddSingleton(new Bonfire.Infrastructure.Backups.BackupStore(startup.Paths!));
@@ -182,7 +185,9 @@ public sealed class App : Application
             sp.GetRequiredService<IDockerStatusSource>(),
             sp.GetRequiredService<ILogger<ServerOperationsService>>(),
             sp.GetRequiredService<RestoreEngine>(),
-            sp.GetRequiredService<ContentEngine>())); // explicit: optional parameters must not silently be null
+            sp.GetRequiredService<ContentEngine>(),
+            sp.GetRequiredService<IHostAddresses>(),
+            sp.GetRequiredService<IPortAvailability>())); // explicit: optional parameters must not silently be null
         services.AddSingleton<BackupService>();
         services.AddSingleton<IPortAvailability, PortAvailability>();
         services.AddSingleton(_ => new MetadataHttpClient());
@@ -219,6 +224,9 @@ public sealed class App : Application
                 sp.GetRequiredService<ServerRegistry>(),
                 sp.GetRequiredService<ServerOperationsService>(),
                 sp.GetRequiredService<IDialogService>(),
+                sp.GetRequiredService<IHostAddresses>(),
+                sp.GetRequiredService<IPortAvailability>(),
+                () => sp.GetRequiredService<BackupService>().List(item.ServerId),
                 sp.GetRequiredService<Localizer>(),
                 sp.GetRequiredService<ILogger<ServerSettingsViewModel>>())
             {
@@ -247,6 +255,11 @@ public sealed class App : Application
             {
                 Changed = () => _ = sp.GetRequiredService<ServersPageViewModel>().RefreshAsync(),
             },
+            new ConnectionInfoViewModel(
+                sp.GetRequiredService<Localizer>(),
+                sp.GetRequiredService<IHostAddresses>(),
+                sp.GetRequiredService<IClipboardService>(),
+                sp.GetRequiredService<ILogger<ConnectionInfoViewModel>>()),
             sp.GetRequiredService<ServerRegistry>(),
             sp.GetRequiredService<IFolderLauncher>(),
             sp.GetRequiredService<Navigator>()));

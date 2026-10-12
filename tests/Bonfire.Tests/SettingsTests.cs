@@ -98,7 +98,7 @@ public sealed class SettingsModelTests
         var labels = ContainerSpecBuilder.Build(ServerTestData.Vanilla(), Paths, 1000, 1000, Guid.NewGuid()).Labels;
 
         Assert.Equal(ServerLabels.SpecVersion, labels[ServerLabels.Schema]);
-        Assert.Equal(4, ServerRecord.CurrentSchemaVersion);
+        Assert.Equal(5, ServerRecord.CurrentSchemaVersion);
     }
 }
 
@@ -276,7 +276,7 @@ public sealed class SettingsApplyTests : IDisposable
     public async Task UndefinedGameModeInTheFileFallsBackSafely()
     {
         await File.WriteAllTextAsync(Path.Combine(_registry.PathsFor(_id).DataDir, "server.properties"), "gamemode=4\n", Ct);
-        var editor = new ServerSettingsViewModel(_id, _registry, _operations, new AcceptAll(), Localizer.Instance, NullLogger.Instance);
+        var editor = TestDetails.Settings(_id, _registry, _operations, new AcceptAll());
 
         await editor.LoadAsync();
 
@@ -311,7 +311,7 @@ public sealed class SettingsApplyTests : IDisposable
         var paths = _registry.PathsFor(_id);
         await File.WriteAllTextAsync(Path.Combine(paths.DataDir, "server.properties"),
             "motd=Handmade MOTD\nview-distance=7\npvp=false\nspawn-protection=4\n", Ct);
-        var editor = new ServerSettingsViewModel(_id, _registry, _operations, new AcceptAll(), Localizer.Instance, NullLogger.Instance);
+        var editor = TestDetails.Settings(_id, _registry, _operations, new AcceptAll());
 
         await editor.LoadAsync();
         Assert.Equal("Handmade MOTD", editor.Motd);
@@ -333,7 +333,7 @@ public sealed class SettingsApplyTests : IDisposable
     {
         var record = _registry.Load(_id)!.Record!;
         await _registry.SaveAsync(record with { Definition = record.Definition with { Game = record.Definition.Game with { ViewDistance = 12 } } }, Ct);
-        var editor = new ServerSettingsViewModel(_id, _registry, _operations, new AcceptAll(), Localizer.Instance, NullLogger.Instance);
+        var editor = TestDetails.Settings(_id, _registry, _operations, new AcceptAll());
         await editor.LoadAsync();
 
         editor.ViewDistance = 20;

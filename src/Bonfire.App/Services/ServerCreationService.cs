@@ -15,7 +15,8 @@ public sealed record CreationRequest(
     RestartPolicyKind RestartPolicy,
     GameSettings Game,
     DateTimeOffset EulaAcceptedAt,
-    bool StartAfterCreate);
+    bool StartAfterCreate,
+    string? HostAddress = null);
 
 public enum CreationPhase
 {
@@ -86,7 +87,7 @@ public sealed class ServerCreationService
         var definition = BuildDefinition(request, new ImageReference(ImageReference.ItzgRepository, $"java{request.Version.JavaMajor}", PlaceholderDigest));
         ThrowIfInvalid(definition);
 
-        var port = await _ports.CheckAsync(request.Exposure, request.Port, null, cancellationToken);
+        var port = await _ports.CheckAsync(PortRules.HostIp(definition), request.Port, PortCheckScope.All, cancellationToken);
         if (port is PortCheck.UsedByBonfireServer or PortCheck.UsedByContainer or PortCheck.UsedByHost)
         {
             throw new ServerOperationException(ServerOperationError.PortInUse, port.ToString());
@@ -163,7 +164,8 @@ public sealed class ServerCreationService
             RestartPolicy: request.RestartPolicy,
             Game: request.Game,
             EulaAcceptedAt: request.EulaAcceptedAt,
-            CreatedAt: _time.GetUtcNow());
+            CreatedAt: _time.GetUtcNow(),
+            HostAddress: request.HostAddress);
     }
 
     /// <summary>Validation errors for a request, using a placeholder digest (the real one comes from the pull).</summary>

@@ -18,6 +18,47 @@ public interface IChoice
 
 public sealed record Choice<T>(T Value, string Label) : IChoice;
 
+/// <summary>A host address offered for publishing the port: "10.8.0.1 — wg0 (VPN)".</summary>
+public sealed record AddressChoice(string Address, string Interface, bool LooksLikeVpn, string Label) : IChoice;
+
+/// <summary>One advisory line of the exposure checklist; never blocks anything.</summary>
+public sealed record ChecklistItem(string Text, bool Ok)
+{
+    public string Mark => Ok ? "✓" : "✗";
+}
+
+/// <summary>Shared between the wizard and the settings editor: address choices and the 0.0.0.0 checklist.</summary>
+internal static class ExposureHelpers
+{
+    public static List<AddressChoice> Choices(IReadOnlyList<HostInterface> interfaces, Localizer localizer) =>
+        HostAddressRules.Suggestions(interfaces)
+            .Select(s => new AddressChoice(
+                s.Address,
+                s.Interface,
+                s.LooksLikeVpn,
+                s.LooksLikeVpn
+                    ? localizer.Format("Exposure_AddressVpn", s.Address, s.Interface)
+                    : localizer.Format("Exposure_Address", s.Address, s.Interface)))
+            .ToList();
+
+    /// <summary>Online mode, whitelist, enforced whitelist and a backup: read, never enforced.</summary>
+    public static List<ChecklistItem> Checklist(Localizer localizer, bool onlineMode, bool whitelist, bool? enforceWhitelist, string backupText, bool backupOk)
+    {
+        var items = new List<ChecklistItem>
+        {
+            new(localizer["Checklist_OnlineMode"], onlineMode),
+            new(localizer["Checklist_Whitelist"], whitelist),
+        };
+        if (enforceWhitelist is { } enforce)
+        {
+            items.Add(new(localizer["Checklist_EnforceWhitelist"], whitelist && enforce));
+        }
+
+        items.Add(new(backupText, backupOk));
+        return items;
+    }
+}
+
 /// <summary>
 /// The new-server form. Version lookups run asynchronously and a newer lookup always invalidates
 /// older ones; "Create" freezes an immutable request and can only run once at a time.
@@ -29,6 +70,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
     private readonly IServerMetadata _metadata;
     private readonly ServerCreationService _creation;
     private readonly IPortAvailability _ports;
+    private readonly IHostAddresses _hostAddresses;
     private readonly IFolderLauncher _launcher;
     private readonly Navigator _navigator;
     private readonly TimeProvider _time;
@@ -50,6 +92,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
         IServerMetadata metadata,
         ServerCreationService creation,
         IPortAvailability ports,
+        IHostAddresses hostAddresses,
         IFolderLauncher launcher,
         Navigator navigator,
         TimeProvider time,
@@ -60,6 +103,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
         _metadata = metadata;
         _creation = creation;
         _ports = ports;
+        _hostAddresses = hostAddresses;
         _launcher = launcher;
         _navigator = navigator;
         _time = time;
@@ -141,8 +185,58 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
     private decimal? _port = PortRules.SearchStart;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Summary))]
-    private bool _exposeOnAllInterfaces;
+    [NotifyPropertyChangedFor(nameof(Summary), nameof(Errors), nameof(CanCreate), nameof(IsLocalhost), nameof(IsAllInterfaces),
+        nameof(IsSpecificAddress), nameof(ShowChecklist), nameof(RestartPolicyLocked))]
+    private PortExposure _exposure = PortExposure.Localhost;
+
+    // Three radio buttons over one value; setting one to true selects it, "false" (the other radio) is ignored.
+    public bool IsLocalhost
+    {
+        get => Exposure == PortExposure.Localhost;
+        set => SelectExposure(value, PortExposure.Localhost);
+    }
+
+    public bool IsAllInterfaces
+    {
+        get => Exposure == PortExposure.AllInterfaces;
+        set => SelectExposure(value, PortExposure.AllInterfaces);
+    }
+
+    public bool IsSpecificAddress
+    {
+        get => Exposure == PortExposure.SpecificAddress;
+        set => SelectExposure(value, PortExposure.SpecificAddress);
+    }
+
+    private void SelectExposure(bool selected, PortExposure exposure)
+    {
+        if (selected)
+        {
+            Exposure = exposure;
+        }
+    }
+
+    /// <summary>Host addresses the port can be published on (VPN-looking ones first); refreshed on demand.</summary>
+    public ObservableCollection<AddressChoice> Addresses { get; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Summary), nameof(Errors), nameof(CanCreate))]
+    private AddressChoice? _selectedAddress;
+
+    [ObservableProperty]
+    private string? _addressesNote;
+
+    /// <summary>Advisory checklist for 0.0.0.0: read from the form, never enforced.</summary>
+    public bool ShowChecklist => Exposure == PortExposure.AllInterfaces;
+
+    public IReadOnlyList<ChecklistItem> Checklist =>
+        ExposureHelpers.Checklist(Localizer, OnlineMode, WhitelistEnabled, null, Localizer["Checklist_BackupNewServer"], false);
+
+    /// <summary>
+    /// A specific address forbids automatic restarts: a daemon restart before the VPN is up fails
+    /// the bind, after which Docker runs the container without publishing the port at all.
+    /// </summary>
+    public bool RestartPolicyLocked => Exposure == PortExposure.SpecificAddress;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(PortStatus))]
@@ -155,7 +249,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
     // ---- Game ---------------------------------------------------------------------------
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Summary))]
+    [NotifyPropertyChangedFor(nameof(Summary), nameof(Checklist))]
     private bool _onlineMode = true;
 
     public IReadOnlyList<Choice<Difficulty>> Difficulties =>
@@ -170,7 +264,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
     private decimal? _maxPlayers = 10;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Summary), nameof(Errors), nameof(CanCreate), nameof(WhitelistEmptyNote))]
+    [NotifyPropertyChangedFor(nameof(Summary), nameof(Errors), nameof(CanCreate), nameof(WhitelistEmptyNote), nameof(Checklist))]
     private bool _whitelistEnabled;
 
     [ObservableProperty]
@@ -239,9 +333,9 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
                 lines.Add($"{Localizer["Wizard_Resources"]}: {r.HeapMinMb}–{r.HeapMaxMb} MB, CPU {r.CpuLimit:0.##}");
             }
 
-            if (Port is { } p)
+            if (Port is { } p && HostIp is { } hostIp)
             {
-                lines.Add($"{Localizer["Wizard_Port"]}: {PortRules.HostIp(Exposure)}:{p:0}");
+                lines.Add($"{Localizer["Wizard_Port"]}: {HostAddressRules.Endpoint(hostIp, (int)Math.Clamp(p, 0, int.MaxValue))}");
             }
 
             lines.Add($"{Localizer["Wizard_OnlineMode"]}: {(OnlineMode ? "✓" : "✗")}");
@@ -259,9 +353,10 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
         }
     }
 
-    private PortExposure Exposure => ExposeOnAllInterfaces ? PortExposure.AllInterfaces : PortExposure.Localhost;
+    /// <summary>The binding's host address, or null while a specific address is chosen but none selected.</summary>
+    private string? HostIp => Exposure == PortExposure.SpecificAddress ? SelectedAddress?.Address : PortRules.HostIp(Exposure, null);
 
-    /// <summary>Loads versions and a free port. Call once when the page is shown.</summary>
+    /// <summary>Loads versions, the host's addresses and a free port. Call once when the page is shown.</summary>
     public async Task InitializeAsync()
     {
         if (_disposed)
@@ -271,7 +366,46 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
 
         SelectedDifficulty = Difficulties.First(d => d.Value == Difficulty.Normal);
         SelectedRestartPolicy = RestartPolicies.First(p => p.Value == RestartPolicyKind.No);
-        await Task.WhenAll(LoadVersionsAsync(), FindPortAsync());
+        await Task.WhenAll(LoadVersionsAsync(), FindPortAsync(), LoadAddressesAsync());
+    }
+
+    [RelayCommand]
+    private async Task RefreshAddressesAsync() => await LoadAddressesAsync();
+
+    private async Task LoadAddressesAsync()
+    {
+        IReadOnlyList<HostInterface> interfaces;
+        try
+        {
+            interfaces = await Task.Run(_hostAddresses.Read, _lifetime.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            return;
+        }
+        catch (HostAddressException ex)
+        {
+            _logger.LogWarning(ex, "Could not read the host's addresses");
+            AddressesNote = Localizer["Exposure_AddressesUnavailable"];
+            return;
+        }
+
+        // Captured before Clear(): the ComboBox's two-way binding nulls the selection when its items go.
+        var previous = SelectedAddress?.Address;
+        Addresses.Clear();
+        foreach (var choice in ExposureHelpers.Choices(interfaces, Localizer))
+        {
+            Addresses.Add(choice);
+        }
+
+        // A selected address that vanished stays selected, marked as absent — never silently replaced by another one.
+        if (previous is not null && Addresses.All(a => a.Address != previous))
+        {
+            Addresses.Insert(0, new AddressChoice(previous, "", false, Localizer.Format("Exposure_AddressAbsent", previous)));
+        }
+
+        SelectedAddress = previous is null ? Addresses.FirstOrDefault() : Addresses.First(a => a.Address == previous);
+        AddressesNote = Addresses.Count == 0 ? Localizer["Exposure_NoAddresses"] : null;
     }
 
     [RelayCommand]
@@ -316,7 +450,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
     {
         try
         {
-            if (await _ports.FindFreeAsync(Exposure, _lifetime.Token) is { } free)
+            if (HostIp is { } hostIp && await _ports.FindFreeAsync(hostIp, _lifetime.Token) is { } free)
             {
                 Port = free;
             }
@@ -332,7 +466,17 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
 
     partial void OnPortChanged(decimal? value) => CheckPort();
 
-    partial void OnExposeOnAllInterfacesChanged(bool value) => CheckPort();
+    partial void OnExposureChanged(PortExposure value)
+    {
+        if (value == PortExposure.SpecificAddress)
+        {
+            SelectedRestartPolicy = RestartPolicies.First(p => p.Value == RestartPolicyKind.No); // visible, not rewritten on save
+        }
+
+        CheckPort();
+    }
+
+    partial void OnSelectedAddressChanged(AddressChoice? value) => CheckPort();
 
     /// <summary>Starts a lookup; any older lookup's result is discarded when it arrives.</summary>
     private async void Resolve()
@@ -392,14 +536,14 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
         var token = _portCheck.Token;
         var generation = ++_portGeneration;
         PortState = null;
-        if (Port is not { } port || port < ServerDefinitionValidator.MinPort || port > ServerDefinitionValidator.MaxPort)
+        if (Port is not { } port || port < ServerDefinitionValidator.MinPort || port > ServerDefinitionValidator.MaxPort || HostIp is not { } hostIp)
         {
             return;
         }
 
         try
         {
-            var state = await _ports.CheckAsync(Exposure, (int)port, null, token);
+            var state = await _ports.CheckAsync(hostIp, (int)port, PortCheckScope.All, token);
             if (generation == _portGeneration)
             {
                 PortState = state;
@@ -461,7 +605,12 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
             }
             else if (result.StartError is { } startError)
             {
-                SetResult("Wizard_CreatedNotStarted", Localizer[$"Error_{startError.Error}"]);
+                // Address and publication problems carry the specific fact (which address, what Docker did).
+                var detail = startError.Error is ServerOperationError.AddressNotPresent or ServerOperationError.AddressCheckFailed
+                    or ServerOperationError.PortNotPublished or ServerOperationError.ContainmentFailed
+                    ? $"{Localizer[$"Error_{startError.Error}"]} ({startError.Detail})"
+                    : Localizer[$"Error_{startError.Error}"];
+                SetResult("Wizard_CreatedNotStarted", detail);
                 ShowGoToServers = true;
             }
             else
@@ -553,7 +702,7 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
             resources,
             (int)Math.Clamp(port, 0, int.MaxValue),
             Exposure,
-            SelectedRestartPolicy?.Value ?? RestartPolicyKind.No,
+            RestartPolicyLocked ? RestartPolicyKind.No : SelectedRestartPolicy?.Value ?? RestartPolicyKind.No,
             new GameSettings(
                 OnlineMode,
                 SelectedDifficulty?.Value ?? Difficulty.Normal,
@@ -562,7 +711,8 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
                 WhitelistEnabled ? WhitelistEntries() : [],
                 string.IsNullOrWhiteSpace(Seed) ? null : Seed.Trim()),
             EulaAccepted ? eulaAcceptedAt : default,
-            StartAfterCreate);
+            StartAfterCreate,
+            Exposure == PortExposure.SpecificAddress ? SelectedAddress?.Address : null);
     }
 
     protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
@@ -583,10 +733,28 @@ public sealed partial class NewServerViewModel : PageViewModel, IDisposable
         OnPropertyChanged(nameof(RestartPolicies));
         SelectedDifficulty = Difficulties.FirstOrDefault(d => d.Value == difficulty);
         SelectedRestartPolicy = RestartPolicies.FirstOrDefault(p => p.Value == policy);
+        var address = SelectedAddress?.Address;
+        var relabelled = Addresses.Select(a => a with
+        {
+            Label = a.LooksLikeVpn ? Localizer.Format("Exposure_AddressVpn", a.Address, a.Interface) : Localizer.Format("Exposure_Address", a.Address, a.Interface),
+        }).ToList();
+        Addresses.Clear();
+        foreach (var choice in relabelled)
+        {
+            Addresses.Add(choice);
+        }
+
+        SelectedAddress = Addresses.FirstOrDefault(a => a.Address == address);
+        if (AddressesNote is not null)
+        {
+            AddressesNote = Localizer[Addresses.Count == 0 ? "Exposure_NoAddresses" : "Exposure_AddressesUnavailable"];
+        }
+
         foreach (var name in new[]
                  {
                      nameof(ResolvedText), nameof(ResolutionError), nameof(ContainerMemoryText), nameof(MemoryWarning),
                      nameof(PortStatus), nameof(WhitelistEmptyNote), nameof(Errors), nameof(Summary), nameof(ResultMessage),
+                     nameof(Checklist),
                  })
         {
             OnPropertyChanged(name);

@@ -26,10 +26,15 @@ public sealed class ServerCreationTests : IDisposable
     {
         public PortCheck Result { get; set; } = PortCheck.Free;
 
-        public Task<PortCheck> CheckAsync(PortExposure exposure, int port, Guid? ignoreServerId, CancellationToken cancellationToken) =>
-            Task.FromResult(Result);
+        public List<(string HostIp, int Port, PortCheckScope Scope)> Checks { get; } = [];
 
-        public Task<int?> FindFreeAsync(PortExposure exposure, CancellationToken cancellationToken) => Task.FromResult<int?>(25565);
+        public Task<PortCheck> CheckAsync(string hostIp, int port, PortCheckScope scope, CancellationToken cancellationToken)
+        {
+            Checks.Add((hostIp, port, scope));
+            return Task.FromResult(Result);
+        }
+
+        public Task<int?> FindFreeAsync(string hostIp, CancellationToken cancellationToken) => Task.FromResult<int?>(25565);
     }
 
     private readonly TempDirectory _temp = new();

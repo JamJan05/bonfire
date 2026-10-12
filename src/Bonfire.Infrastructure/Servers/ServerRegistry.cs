@@ -47,7 +47,15 @@ public sealed class ServerRegistry
             var paths = new ServerPaths(dir);
             try
             {
-                var record = JsonSerializer.Deserialize<ServerRecord>(File.ReadAllText(paths.RecordFile), Json);
+                var text = File.ReadAllText(paths.RecordFile);
+                if (NewerSchema(text) is { } newer)
+                {
+                    // Checked before the typed read: a newer record may use values this version cannot even parse.
+                    entries.Add(new RegistryEntry(id, paths, null, $"Record schema {newer} is newer than supported."));
+                    continue;
+                }
+
+                var record = JsonSerializer.Deserialize<ServerRecord>(text, Json);
                 var problem = Check(record, id);
                 entries.Add(problem is null
                     ? new RegistryEntry(id, paths, record, null)
@@ -72,9 +80,7 @@ public sealed class ServerRegistry
     private static string? Check(ServerRecord? record, Guid directoryId)
     {
         var d = record?.Definition;
-        if (record is null || d is null || d.Image is null || d.Resources is null || d.Game is null
-            || d.Game.Whitelist is null || d.DisplayName is null || d.MinecraftVersion is null
-            || d.Image.Repository is null || d.Image.Tag is null || d.Image.Digest is null)
+        if (record is null || !IsComplete(d))
         {
             return "Record is incomplete.";
         }
@@ -95,7 +101,38 @@ public sealed class ServerRegistry
         }
 
         var errors = ServerDefinitionValidator.Validate(d);
-        return errors.Count > 0 ? $"Record is invalid: {string.Join(", ", errors)}" : null;
+        if (errors.Count > 0)
+        {
+            return $"Record is invalid: {string.Join(", ", errors)}";
+        }
+
+        // Repair turns the pending definition into a container, so it must be complete and valid too.
+        if (record.PendingChange is { } change
+            && (!IsComplete(change.NewDefinition) || !IsComplete(change.OldDefinition) || ServerDefinitionValidator.Validate(change.NewDefinition!).Count > 0))
+        {
+            return "Record has an invalid pending settings change.";
+        }
+
+        return null;
+    }
+
+    /// <summary>Every member the validator dereferences is present (valid JSON can still be <c>{}</c>).</summary>
+    private static bool IsComplete([System.Diagnostics.CodeAnalysis.NotNullWhen(true)] ServerDefinition? d) =>
+        d is not null && d.Image is not null && d.Resources is not null && d.Game is not null
+        && d.Game.Whitelist is not null && d.DisplayName is not null && d.MinecraftVersion is not null
+        && d.Image.Repository is not null && d.Image.Tag is not null && d.Image.Digest is not null;
+
+    /// <summary>The schema version from the raw JSON when it is newer than this version supports; otherwise null.</summary>
+    private static int? NewerSchema(string text)
+    {
+        using var document = JsonDocument.Parse(text, new JsonDocumentOptions { MaxDepth = 64 });
+        return document.RootElement.ValueKind == JsonValueKind.Object
+               && document.RootElement.TryGetProperty(nameof(ServerRecord.SchemaVersion), out var version)
+               && version.ValueKind == JsonValueKind.Number
+               && version.TryGetInt32(out var schema)
+               && schema > ServerRecord.CurrentSchemaVersion
+            ? schema
+            : null;
     }
 
     /// <summary>

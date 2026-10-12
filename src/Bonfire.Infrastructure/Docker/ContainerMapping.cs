@@ -61,6 +61,27 @@ internal static class ContainerMapping
         _ => throw new ArgumentOutOfRangeException(nameof(policy)),
     };
 
+    /// <summary>
+    /// What Docker really published for a running container (NetworkSettings.Ports), as opposed to
+    /// what its configuration asks for (HostConfig.PortBindings, see <see cref="ToObserved"/>). The
+    /// two differ after a start that failed to bind the host address: Docker 29.8 then runs the
+    /// container with nothing published.
+    /// </summary>
+    public static IReadOnlyList<Core.Servers.PortBinding> ToEffectivePorts(ContainerInspectResponse inspect) =>
+        (inspect.NetworkSettings?.Ports ?? new Dictionary<string, IList<DockerPortBinding>>())
+            .SelectMany(kv =>
+            {
+                var key = kv.Key.Split('/');
+                var containerPort = int.TryParse(key[0], System.Globalization.CultureInfo.InvariantCulture, out var cp) ? cp : 0;
+                var protocol = key.Length > 1 ? key[1] : "tcp";
+                return (kv.Value ?? []).Select(b => new Core.Servers.PortBinding(
+                    containerPort,
+                    protocol,
+                    string.IsNullOrEmpty(b.HostIP) ? "0.0.0.0" : b.HostIP,
+                    int.TryParse(b.HostPort, System.Globalization.CultureInfo.InvariantCulture, out var hp) ? hp : 0));
+            })
+            .ToList();
+
     public static ObservedContainer ToObserved(ContainerInspectResponse inspect)
     {
         var host = inspect.HostConfig ?? new HostConfig();

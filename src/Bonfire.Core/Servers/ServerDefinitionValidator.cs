@@ -84,6 +84,34 @@ public static partial class ServerDefinitionValidator
             errors.Add("Validation_PortInvalid");
         }
 
+        switch (definition.Exposure)
+        {
+            case PortExposure.Localhost or PortExposure.AllInterfaces when definition.HostAddress is not null:
+                errors.Add("Validation_ExposureInvalid");
+                break;
+            case PortExposure.SpecificAddress
+                when !HostAddressRules.TryCanonicalize(definition.HostAddress, out var canonical)
+                     || canonical != definition.HostAddress
+                     || !HostAddressRules.IsBindable(canonical):
+                errors.Add("Validation_HostAddressInvalid");
+                break;
+            case PortExposure.SpecificAddress when definition.RestartPolicy != RestartPolicyKind.No:
+                // A daemon restart before the VPN is up would fail the start — and Docker then runs the
+                // container without publishing the port at all (verified on Docker 29.8).
+                errors.Add("Validation_SpecificAddressRestartPolicy");
+                break;
+            case PortExposure.Localhost or PortExposure.AllInterfaces or PortExposure.SpecificAddress:
+                break;
+            default:
+                errors.Add("Validation_ExposureInvalid"); // an undefined enum value from a damaged record
+                break;
+        }
+
+        if (!Enum.IsDefined(definition.RestartPolicy))
+        {
+            errors.Add("Validation_RestartPolicyInvalid");
+        }
+
         var game = definition.Game;
         if (game.MaxPlayers is < 1 or > 1000)
         {

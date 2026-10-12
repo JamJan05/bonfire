@@ -97,10 +97,11 @@ public sealed record ServerRecord(
     Bonfire.Core.Content.PendingContent? PendingContent = null)
 {
     /// <summary>
-    /// Format of server.json. 2 added <see cref="PendingChange"/>, 3 <see cref="PendingRestore"/>, 4 <see cref="PendingContent"/> —
+    /// Format of server.json. 2 added <see cref="PendingChange"/>, 3 <see cref="PendingRestore"/>, 4 <see cref="PendingContent"/>,
+    /// 5 <see cref="ServerDefinition.HostAddress"/> and <see cref="PortExposure.SpecificAddress"/> —
     /// which an older Bonfire must not ignore — it refuses newer records. (Independent of the container label version.)
     /// </summary>
-    public const int CurrentSchemaVersion = 4;
+    public const int CurrentSchemaVersion = 5;
 
     /// <summary>An interrupted operation must be finished (Repair) before starting or changing the server.</summary>
     [System.Text.Json.Serialization.JsonIgnore]

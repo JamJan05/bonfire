@@ -28,9 +28,45 @@ entry point, security options — and the server is not started):
 - read-only root filesystem; only the server's own data folder is writable, plus a small `noexec`
   `/tmp`;
 - memory limit without swap, CPU limit, at most 512 processes;
-- its own bridge network; the game port is published on `127.0.0.1` unless you choose otherwise;
-  RCON is never published, its password is a read-only file inside the container;
+- its own bridge network; the game port is published on `127.0.0.1` unless you choose otherwise
+  (see *Network exposure* below); RCON is never published, its password is a read-only file inside
+  the container;
 - the image is pinned to an exact digest; logs are size-limited.
+
+## Network exposure
+
+The game port is published in one of three ways, chosen per server:
+
+- **This computer only** (`127.0.0.1`).
+- **All network interfaces** (`0.0.0.0`): every IPv4 address of the host. Whether that includes
+  the internet depends on your router (port forwarding, carrier-grade NAT), not on Bonfire.
+  On this project's Docker 29.8 setup an explicit `0.0.0.0` binding was observed to publish over
+  **IPv4 only**; whether a daemon also binds `[::]` for it depends on the daemon (Bonfire tolerates
+  that twin binding, so treat the host's IPv6 addresses as possibly reachable). Bonfire shows an
+  advisory checklist (online mode, whitelist, backup) when you choose this mode; it never blocks you.
+- **One address of this computer**: the port is bound to one host address, typically a VPN
+  interface's (Tailscale, WireGuard). Docker's NAT rule matches only traffic addressed to it, so
+  connections to the host's LAN or public addresses are refused. This is a *destination-address*
+  restriction, not an interface restriction: a packet for that address that reaches the host over
+  another interface is still forwarded (Docker documents this for hosts with IP forwarding). Bonfire
+  refuses to start the server while the address is not assigned to any interface (VPN down) and
+  never falls back to another address; automatic restart policies are not allowed in this mode.
+  Starts that Bonfire does not perform (nobody else should start its containers) are not covered.
+
+Two facts about Docker that matter for anything published beyond loopback:
+
+- **Published ports may bypass ordinary host firewall rules.** Docker rewrites the packets in the
+  `nat` table before the host's `INPUT` chain is consulted, so a `ufw` or `firewalld` rule that
+  closes the port on the host does not close it for the container. Filter published traffic in
+  Docker's `DOCKER-USER` chain or rely on the exposure mode above.
+- After a start that failed to bind the host address, **Docker 29.8 runs the container with no
+  port published at all** (reproduced three times on this project's development host, with the
+  configured binding still shown). After every start Bonfire therefore compares what Docker really
+  published with what was requested; a mismatch stops the container again and asks you to remove
+  and recreate it (world and data stay).
+
+Bonfire never changes the host's firewall, routing, or router (no UPnP), and never contacts a
+third-party "port check" service.
 
 Console commands are passed to `rcon-cli` as a single argument after `--` (never through a shell).
 RCON passwords are redacted from displayed logs.

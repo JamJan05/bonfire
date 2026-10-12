@@ -76,7 +76,7 @@ internal sealed class FakeServerRuntime : IServerRuntime
     public Task<IReadOnlyList<ServerContainerState>> ListAsync(CancellationToken cancellationToken) =>
         List?.Invoke(cancellationToken) ?? Task.FromResult<IReadOnlyList<ServerContainerState>>(Containers.ToList());
 
-    public List<PortBinding> PublishedPorts { get; } = [];
+    public List<PublishedPort> PublishedPorts { get; } = [];
 
     public Func<Task>? RemoveBehavior { get; set; }
 
@@ -120,10 +120,10 @@ internal sealed class FakeServerRuntime : IServerRuntime
 
     public bool FailPortListing { get; set; }
 
-    public Task<IReadOnlyList<PortBinding>> ListPublishedPortsAsync(CancellationToken cancellationToken) =>
+    public Task<IReadOnlyList<PublishedPort>> ListPublishedPortsAsync(CancellationToken cancellationToken) =>
         FailPortListing
             ? throw new HttpRequestException("docker down")
-            : Task.FromResult<IReadOnlyList<PortBinding>>(PublishedPorts.ToList());
+            : Task.FromResult<IReadOnlyList<PublishedPort>>(PublishedPorts.ToList());
 
     public ResolvedImage Image { get; set; } = new(
         new ImageReference(ImageReference.ItzgRepository, "java25", ServerTestData.Digest), "sha256:img");

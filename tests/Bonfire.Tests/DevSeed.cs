@@ -35,7 +35,7 @@ public sealed class DevSeed
         var registry = new ServerRegistry(app);
         using var connection = new DockerConnection(DockerEndpoint.Resolve(Environment.GetEnvironmentVariable)!);
         var runtime = new DockerServerRuntime(
-            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid,
+            connection, d => registry.PathsFor(d.Id), installation, HostUser.Uid, HostUser.Gid, new HostAddresses(),
             NullLogger<DockerServerRuntime>.Instance);
 
         using var listener = new TcpListener(IPAddress.Loopback, 0);

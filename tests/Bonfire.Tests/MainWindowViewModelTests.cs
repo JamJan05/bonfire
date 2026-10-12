@@ -64,9 +64,10 @@ public sealed class MainWindowViewModelTests : IDisposable
                     new ServerLogViewModel(item.ServerId, _registry, _runtime, Localizer.Instance, time, NullLogger.Instance),
                     new ServerConsoleViewModel(item.ServerId, operations, Localizer.Instance, NullLogger.Instance),
                     new ServerPlayersViewModel(item.ServerId, operations, Localizer.Instance, time),
-                    new ServerSettingsViewModel(item.ServerId, _registry, operations, quiet, Localizer.Instance, NullLogger.Instance),
+                    TestDetails.Settings(item.ServerId, _registry, operations, quiet),
                     TestDetails.Backups(item.ServerId, _registry, _runtime, operations, quiet, quiet),
                     TestDetails.Content(item.ServerId, _registry, _runtime, operations),
+                    TestDetails.Connection(),
                     _registry, quiet, _navigator);
                 _created.Add(details);
                 return details;

@@ -16,20 +16,19 @@ public sealed class PortAvailability : IPortAvailability
         _runtime = runtime;
     }
 
-    public async Task<PortCheck> CheckAsync(PortExposure exposure, int port, Guid? ignoreServerId, CancellationToken cancellationToken)
+    public async Task<PortCheck> CheckAsync(string hostIp, int port, PortCheckScope scope, CancellationToken cancellationToken)
     {
-        var hostIp = PortRules.HostIp(exposure);
-
+        ArgumentNullException.ThrowIfNull(scope);
         var ours = (await Task.Run(_registry.LoadAll, cancellationToken))
             .Select(e => e.Record?.Definition)
             .OfType<ServerDefinition>()
-            .Where(d => d.Id != ignoreServerId);
-        if (ours.Any(d => PortRules.Overlaps(hostIp, port, PortRules.HostIp(d.Exposure), d.Port)))
+            .Where(d => d.Id != scope.IgnoreServerId);
+        if (ours.Any(d => PortRules.Overlaps(hostIp, port, PortRules.HostIp(d), d.Port)))
         {
             return PortCheck.UsedByBonfireServer;
         }
 
-        IReadOnlyList<PortBinding> published;
+        IReadOnlyList<PublishedPort> published;
         try
         {
             published = await _runtime.ListPublishedPortsAsync(cancellationToken);
@@ -39,19 +38,22 @@ public sealed class PortAvailability : IPortAvailability
             return PortCheck.Unknown;
         }
 
-        if (published.Any(b => b.Protocol == "tcp" && PortRules.Overlaps(hostIp, port, b.HostIp, b.HostPort)))
+        // Only the edited server's own container is ignored — never every binding that happens to match.
+        if (published.Any(p => p.ContainerId != scope.IgnoreContainerId
+                               && p.Binding.Protocol == "tcp"
+                               && PortRules.Overlaps(hostIp, port, p.Binding.HostIp, p.Binding.HostPort)))
         {
             return PortCheck.UsedByContainer;
         }
 
-        return TryBind(hostIp, port);
+        return scope.ProbeHost ? TryBind(hostIp, port) : PortCheck.Free;
     }
 
-    public async Task<int?> FindFreeAsync(PortExposure exposure, CancellationToken cancellationToken)
+    public async Task<int?> FindFreeAsync(string hostIp, CancellationToken cancellationToken)
     {
         for (var port = PortRules.SearchStart; port < PortRules.SearchStart + PortRules.SearchCount; port++)
         {
-            if (await CheckAsync(exposure, port, null, cancellationToken) == PortCheck.Free)
+            if (await CheckAsync(hostIp, port, PortCheckScope.All, cancellationToken) == PortCheck.Free)
             {
                 return port;
             }
@@ -62,9 +64,14 @@ public sealed class PortAvailability : IPortAvailability
 
     internal static PortCheck TryBind(string hostIp, int port)
     {
+        if (!IPAddress.TryParse(hostIp, out var address))
+        {
+            return PortCheck.Unknown;
+        }
+
         try
         {
-            using var listener = new TcpListener(IPAddress.Parse(hostIp), port);
+            using var listener = new TcpListener(address, port);
             listener.Server.ExclusiveAddressUse = true;
             listener.Start();
             return PortCheck.Free;
@@ -75,7 +82,7 @@ public sealed class PortAvailability : IPortAvailability
         }
         catch (SocketException)
         {
-            return PortCheck.Unknown; // e.g. permission problems: not proof of anything
+            return PortCheck.Unknown; // e.g. permission problems or an address not assigned: not proof of anything
         }
     }
 }

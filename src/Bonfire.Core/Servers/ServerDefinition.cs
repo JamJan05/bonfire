@@ -13,8 +13,14 @@ public enum PortExposure
     /// <summary>127.0.0.1 only — reachable from this computer.</summary>
     Localhost,
 
-    /// <summary>0.0.0.0 — every IPv4 interface of the host, possibly including public ones.</summary>
+    /// <summary>0.0.0.0 — every IPv4 interface of the host, possibly including public ones. IPv4 only.</summary>
     AllInterfaces,
+
+    /// <summary>
+    /// One address of the host (<see cref="ServerDefinition.HostAddress"/>), typically a VPN interface's:
+    /// Docker forwards only traffic addressed to it. Starting is refused while the address is absent.
+    /// </summary>
+    SpecificAddress,
 }
 
 /// <summary>
@@ -105,6 +111,11 @@ public sealed record GameSettings(
 /// Fully resolved, runnable description of a server. Every version is concrete — "latest"
 /// is resolved before a definition is created, so recreating the container is reproducible.
 /// </summary>
+/// <param name="HostAddress">
+/// The host address the game port is published on with <see cref="PortExposure.SpecificAddress"/>
+/// (canonical IPv4 or IPv6 literal, no brackets, no scope); null for the other modes. Declared
+/// last with a default so records written before this field still deserialize.
+/// </param>
 public sealed record ServerDefinition(
     Guid Id,
     string DisplayName,
@@ -122,7 +133,8 @@ public sealed record ServerDefinition(
     RestartPolicyKind RestartPolicy,
     GameSettings Game,
     DateTimeOffset EulaAcceptedAt,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    string? HostAddress = null)
 {
     /// <summary>Docker resource name derived from the immutable id, never from the display name.</summary>
     public string ResourceName => $"bonfire-{Id:N}";

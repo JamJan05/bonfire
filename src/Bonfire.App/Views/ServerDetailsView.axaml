@@ -2,9 +2,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Bonfire.App.ViewModels"
              xmlns:loc="using:Bonfire.App.Localization"
+             xmlns:sys="using:System"
              x:Class="Bonfire.App.Views.ServerDetailsView"
              x:DataType="vm:ServerDetailsViewModel">
   <UserControl.Styles>
+    <Style Selector="TextBlock.warn">
+      <Setter Property="Foreground" Value="{StaticResource BfWarningBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
     <Style Selector="TextBlock.log">
       <Setter Property="FontFamily" Value="JetBrains Mono, JetBrainsMono Nerd Font, JetBrainsMonoNL Nerd Font, monospace" />
       <Setter Property="FontSize" Value="12.5" />
@@ -189,10 +194,68 @@
                 <CheckBox Margin="0,8,0,0" IsChecked="{Binding Pvp}" Content="{Binding [Settings_Pvp], Source={x:Static loc:Localizer.Instance}}" />
                 <CheckBox IsChecked="{Binding AllowFlight}" Content="{Binding [Settings_AllowFlight], Source={x:Static loc:Localizer.Instance}}" />
                 <CheckBox IsChecked="{Binding CommandBlocks}" Content="{Binding [Settings_CommandBlocks], Source={x:Static loc:Localizer.Instance}}" />
+                <CheckBox IsChecked="{Binding OnlineMode}" Content="{Binding [Wizard_OnlineMode], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" IsVisible="{Binding !OnlineMode}" Foreground="{StaticResource BfWarningBrush}"
+                           Text="{Binding [Wizard_OnlineModeWarning], Source={x:Static loc:Localizer.Instance}}" />
                 <CheckBox IsChecked="{Binding WhitelistEnabled}" Content="{Binding [Settings_Whitelist], Source={x:Static loc:Localizer.Instance}}" />
                 <CheckBox IsChecked="{Binding EnforceWhitelist}" Content="{Binding [Settings_EnforceWhitelist], Source={x:Static loc:Localizer.Instance}}" />
                 <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap"
                            Text="{Binding [Settings_WhitelistNote], Source={x:Static loc:Localizer.Instance}}" />
+              </StackPanel>
+            </Border>
+            <Border Classes="card">
+              <StackPanel Spacing="6">
+                <TextBlock Classes="h2" Text="{Binding [Settings_Network], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [Settings_NetworkNote], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBlock Classes="muted" Text="{Binding [Wizard_Port], Source={x:Static loc:Localizer.Instance}}" />
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <NumericUpDown Value="{Binding Port}" Minimum="1024" Maximum="65535" FormatString="0" Width="160" />
+                  <TextBlock VerticalAlignment="Center" Text="{Binding PortStatus}" TextWrapping="Wrap"
+                             Classes.warn="{Binding PortProblem}" Classes.muted="{Binding !PortProblem}" />
+                </StackPanel>
+                <RadioButton Margin="0,8,0,0" GroupName="settings-exposure" IsChecked="{Binding IsLocalhost}"
+                             Content="{Binding [Wizard_ExposureLocal], Source={x:Static loc:Localizer.Instance}}" />
+                <RadioButton GroupName="settings-exposure" IsChecked="{Binding IsAllInterfaces}"
+                             Content="{Binding [Wizard_ExposureAll], Source={x:Static loc:Localizer.Instance}}" />
+                <TextBlock Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" IsVisible="{Binding IsAllInterfaces}"
+                           Text="{Binding [Wizard_ExposureAllWarning], Source={x:Static loc:Localizer.Instance}}" />
+                <StackPanel IsVisible="{Binding ShowChecklist}" Spacing="2" Margin="0,4,0,0">
+                  <TextBlock Classes="muted" Text="{Binding [Checklist_Intro], Source={x:Static loc:Localizer.Instance}}" />
+                  <ItemsControl ItemsSource="{Binding Checklist}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:ChecklistItem">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Mark}" Width="16" />
+                          <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+                <RadioButton GroupName="settings-exposure" IsChecked="{Binding IsSpecificAddress}"
+                             Content="{Binding [Wizard_ExposureAddress], Source={x:Static loc:Localizer.Instance}}" />
+                <StackPanel IsVisible="{Binding IsSpecificAddress}" Spacing="4" Margin="0,4,0,0">
+                  <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [Wizard_ExposureAddressHint], Source={x:Static loc:Localizer.Instance}}" />
+                  <DockPanel>
+                    <Button DockPanel.Dock="Right" Margin="8,0,0,0" Content="⟳"
+                            ToolTip.Tip="{Binding [Exposure_Refresh], Source={x:Static loc:Localizer.Instance}}"
+                            Command="{Binding RefreshAddressesCommand}" />
+                    <ComboBox ItemsSource="{Binding Addresses}" SelectedItem="{Binding SelectedAddress}" HorizontalAlignment="Stretch">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:IChoice"><TextBlock Text="{Binding Label}" /></DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </DockPanel>
+                  <TextBlock Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" Text="{Binding AddressesNote}" />
+                  <TextBlock Classes="muted" FontSize="12" TextWrapping="Wrap" Text="{Binding [Exposure_RestartLocked], Source={x:Static loc:Localizer.Instance}}" />
+                </StackPanel>
+                <TextBlock Classes="muted" Margin="0,8,0,0" Text="{Binding [Wizard_RestartPolicy], Source={x:Static loc:Localizer.Instance}}" />
+                <ComboBox ItemsSource="{Binding RestartPolicies}" SelectedItem="{Binding SelectedRestartPolicy}" HorizontalAlignment="Stretch"
+                          IsEnabled="{Binding !RestartPolicyLocked}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:IChoice"><TextBlock Text="{Binding Label}" /></DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
               </StackPanel>
             </Border>
             <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsApplying}" />
@@ -415,6 +478,39 @@
       <TabItem Header="{Binding [Details_Info], Source={x:Static loc:Localizer.Instance}}">
         <ScrollViewer Margin="0,12,0,0">
           <StackPanel Spacing="16" MaxWidth="1000" HorizontalAlignment="Left">
+            <Border Classes="card">
+              <StackPanel DataContext="{Binding Connection}" x:DataType="vm:ConnectionInfoViewModel" Spacing="6">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Content="⟳" Command="{Binding RefreshCommand}"
+                          ToolTip.Tip="{Binding [Exposure_Refresh], Source={x:Static loc:Localizer.Instance}}" />
+                  <TextBlock Classes="h2" Text="{Binding [Connection_Title], Source={x:Static loc:Localizer.Instance}}" VerticalAlignment="Center" />
+                </DockPanel>
+                <TextBlock Classes="muted" Text="{Binding [Connection_Intro], Source={x:Static loc:Localizer.Instance}}" />
+                <ItemsControl ItemsSource="{Binding Rows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ConnectionRow">
+                      <Grid ColumnDefinitions="Auto,12,*,12,Auto" Margin="0,2">
+                        <SelectableTextBlock Text="{Binding Endpoint}" FontFamily="monospace" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="2" Classes="muted" Text="{Binding Note}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                        <Button Grid.Column="4" Content="{Binding [Connection_Copy], Source={x:Static loc:Localizer.Instance}}"
+                                IsVisible="{Binding IsPublished}"
+                                Command="{Binding $parent[ItemsControl].((vm:ConnectionInfoViewModel)DataContext).CopyCommand}"
+                                CommandParameter="{Binding}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Classes="muted" Text="{Binding CopiedText}" />
+                <TextBlock Foreground="{StaticResource BfWarningBrush}" TextWrapping="Wrap" Text="{Binding LoadError}" />
+                <ItemsControl ItemsSource="{Binding Notes}" Margin="0,6,0,0">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="sys:String">
+                      <TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="0,2" Classes="muted" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
             <Border Classes="card">
               <ItemsControl ItemsSource="{Binding Info}">
                 <ItemsControl.ItemTemplate>

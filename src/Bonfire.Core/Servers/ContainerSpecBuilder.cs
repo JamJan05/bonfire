@@ -40,11 +40,7 @@ public static class ContainerSpecBuilder
                 new BindMount(paths.RconPasswordFile, RconSecretPath, ReadOnly: true),
             ],
             Tmpfs: new Dictionary<string, string> { ["/tmp"] = TmpfsOptions },
-            Port: new PortBinding(
-                MinecraftPort,
-                "tcp",
-                definition.Exposure == PortExposure.Localhost ? "127.0.0.1" : "0.0.0.0",
-                definition.Port),
+            Port: new PortBinding(MinecraftPort, "tcp", PortRules.HostIp(definition), definition.Port),
             MemoryBytes: memory,
             MemorySwapBytes: memory, // equal to memory: no swap
             NanoCpus: (long)Math.Round(definition.Resources.CpuLimit * 1_000_000_000),
